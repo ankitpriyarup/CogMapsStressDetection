@@ -1,0 +1,2884 @@
+﻿<usermanual>
+						
+											MONTREAL IMAGING STRESS TEST (no port info)
+
+SCRIPT INFO
+
+Script Author: Katja Borchert, Ph.D. (katjab@millisecond.com) for Millisecond Software, LLC
+Date: 06-16-2015
+last updated: 11-01-2019 by K.Borchert (katjab@millisecond.com) for Millisecond Software LLC
+
+Script Copyright © 11-01-2019 Millisecond Software
+
+
+BACKGROUND INFO
+
+											*Purpose*
+This script implements an Inquisit version of the Montreal Imaging Stress Test as described in:
+
+Dedovic, K.; Renwick, R,; Khalili Mahani, N.; Engert, V.; Lupien, S.J. & Pruessner, J.C. (2005).
+The Montreal Imaging Stress Task: using functional imaging to investigate the effects of perceiving and
+processing psychosocial stress in the human brain. J Psychiatry Neurosci, 30, 319-325.
+
+The Montreal Stress Task was developed as a test to be used under imaging conditions (e.g. fMRI, PET)
+where participants might have limited access to keyboards/touchscreens.
+This script is a best guess effort of Millisecond Software based on published information.
+
+
+											  *Task*
+Participants are asked to solve arithmetic problems of 5 different difficulty levels 
+under 3 different stress conditions. In the high stress condition (experimental condition), the participant's
+performance is manipulated to be relatively low by
+a) timing performance (e.g. if too many are correct, less time is allocated)
+b) comparing the participant's performance to the "average" performance (80-90% correct) by means of a "performance bar"
+In the control condition, the participants are asked to solve the same problems but without 
+overt timing and without presenting the performance bar.
+In the rest condition, participants are simply asked to rest.
+In all conditions the participants are asked to control the selection of the solution by "dialing" via
+mouse selections: left button (dials counterclockwise), right button (dials clockwise), middle button (submits the response).
+
+
+
+DATA FILE INFORMATION: 
+The default data stored in the data files are:
+
+(1) Raw data file: 'MontrealStressTest_raw*.iqdat' (a separate file for each participant)
+
+build:							Inquisit build
+date, time, subject, group:		date and time script was run with the current subject/groupnumber 
+/order:							order of Rest, Experimental and Control Condition
+blockcode, blocknum:			the name and number of the current block
+trialcode, trialnum: 			the name and number of the currently recorded trial
+									(Note: not all trials that are run might record data) 
+/condition:						1 = training; 2 = experimental; 3 = control; 4 = rest
+/level:							stores the level of the presently presented problem
+/problem:						stores the presently presented problem 
+/solution:						stores the solution to the presently presented problem
+/dialposition:					the currently 'highlighted' dial
+response:						the participant's response
+/ACC:							0 = Timeout; 1 = correct response; 2 = error response
+/error: 						1 = error: erroneous response or timeout; 0 = correct response
+latency: 						the response latency (in ms) of the current trial
+/RT_complete:					stores the response latency in ms of the current complete training/control/experimental task
+/currenttimeout_experimental:	stores the max. duration in ms of the currently complete training/control/experimental task
+/trialtimeout:					stores the max. duration in ms of the presented segment of the current experimental task
+									(Note: each dial press starts a new trial segment, so trialtimeout needs to be continuously adjusted)
+/increasetimeout:				1 = the last 3 experimental responses were incorrect or timeouts; 0 = otherwise
+/decreasetimeout:				1 = the last 3 experimental responses were all correct; 0 = otherwise
+
+
+(2) Summary data file: 'MontrealStressTest_summary*.iqdat' (a separate file for each participant)
+
+script.startdate:				date script was run
+script.starttime:				time script was started
+script.subjectid:				subject id number
+script.groupid:					group id number
+/order:							order of Rest, Experimental and Control Condition
+script.elapsedtime:				time it took to run script (in ms)
+/completed:						0 = script was not completed (prematurely aborted); 1 = script was completed (all conditions run)
+/meanRT_complete1:				stores the mean response time in ms of level 1 training trials (not corrected for accuracy)
+/meanRT_complete2:				stores the mean response time in ms of level 2 training trials (not corrected for accuracy)
+/meanRT_complete3:				stores the mean response time in ms of level 3 training trials (not corrected for accuracy)
+/meanRT_complete4:				stores the mean response time in ms of level 4 training trials (not corrected for accuracy)
+/meanRT_complete5:				stores the mean response time in ms of level 5 training trials (not corrected for accuracy)
+/percentcorrect_exp:			percent correct of experimental trials across levels
+/percentcorrect_exp1:			percent correct of level 1 experimental trials
+/percentcorrect_exp2:			percent correct of level 2 experimental trials
+/percentcorrect_exp3:			percent correct of level 3 experimental trials
+/percentcorrect_exp4:			percent correct of level 4 experimental trials
+/percentcorrect_exp5:			percent correct of level 5 experimental trials
+/meanrt_exp:					mean correct response latency in ms of experimental trials across levels
+/meanrt_exp1:					mean correct response latency in ms of level 1 experimental trials
+/meanrt_exp2:					mean correct response latency in ms of level 2 experimental trials
+/meanrt_exp3:					mean correct response latency in ms of level 3 experimental trials
+/meanrt_exp4:					mean correct response latency in ms of level 4 experimental trials
+/meanrt_exp5:					mean correct response latency in ms of level 5 experimental trials
+/percentcorrect_ctrl:			percent correct of control trials across levels
+/percentcorrect_ctrl1:			percent correct of level 1 control trials
+/percentcorrect_ctrl2:			percent correct of level 2 control trials
+/percentcorrect_ctrl3:			percent correct of level 3 control trials
+/percentcorrect_ctrl4:			percent correct of level 4 control trials
+/percentcorrect_ctrl5:			percent correct of level 5 control trials
+/meanrt_ctrl:					mean correct response latency in ms of control trials across levels
+/meanrt_ctrl1:					mean correct response latency in ms of level 1 control trials
+/meanrt_ctrl2:					mean correct response latency in ms of level 2 control trials
+/meanrt_ctrl3:					mean correct response latency in ms of level 3 control trials
+/meanrt_ctrl4:					mean correct response latency in ms of level 4 control trials
+/meanrt_ctrl5:					mean correct response latency in ms of level 5 control trials
+
+/count_exp1:					stores the number of level 1 concluded experimental trials
+/count_exp2:					stores the number of level 2 concluded experimental trials
+/count_exp3:					stores the number of level 3 concluded experimental trials
+/count_exp4:					stores the number of level 4 concluded experimental trials
+/count_exp5:					stores the number of level 5 concluded experimental trials
+/count_ctrl1:					stores the number of level 1 concluded control trials
+/count_ctrl2:					stores the number of level 2 concluded control trials
+/count_ctrl3:					stores the number of level 3 concluded control trials
+/count_ctrl4:					stores the number of level 4 concluded control trials
+/count_ctrl5:					stores the number of level 5 concluded control trials
+
+
+EXPERIMENTAL SET-UP
+
+(A) 5 levels of difficulty: tested in blocked format
+
+In this script version, the levels are defined as follows: 
+1: 2 1-digit integers (0-9), only + or -, solution 0-9 (1 digit)
+2: 3 1 digit integers (0-9), only +,- (no repeated operations, order of operations random)
+3: 3 integers, 1-2 integers are double digits (0-99), +,-,* (no repeated operations, selection and order of operations random), solution 0-9 (1 digit)
+4: 4 integers, 1-2 integers are double digits (0-99), +,-,* (no repeated operations, selection and order of operations random), solution 0-9 (1 digit)
+5: 4 integers, 1-4 integers are double digits (0-99), *, / are a must, then either + or - (order of operations random), solution 0-9 (1 digit)	
+
+Note: the problems are pregenerated for this script (see also Dedovic et al, p.320)
+
+(B) 4 different conditions:
+1) Training: 
+- administered outside of imaging equipment
+- uses the mouse to control the selection of the solution (the 'dials') -> Dedovic et al (2005) use keyboard input for training
+- minimum suggested duration: 2 minutes for entire training block (this translates to Min = 24s for each level of difficulty);
+	Note: he default in this script is set to 5 minutes (=1 minute/level of difficulty)
+- presents a random order of the 5 difficulty level blocks
+- calculates average time participants used to respond to each problem (regardless of accuracy) for each level of difficulty.
+	Note: The uncorrected latencies are used in this script to ensure that initial timelimits can be calculated.
+- does not put a time limit on performance
+- does not give overall performance feedback in the form of a performance bar
+- presents feedback (correct, incorrect) for individual problem for 500ms (editable parameter)			
+	Note: training ends with a slide that says "Please Wait" (to continue the experimenter has to press the Spacebar - participant cannot move from here with the mouse)
+
+2) Experimental: 
+- minimum suggested duration: 2 minutes per level of difficulty
+	Note: this timelimit is based on our interpretation of  (->"individual runs" p.321, right column)
+- presents a random order of the 5 difficulty level blocks
+- puts a time limit on performance
+	a) at the start of a block uses training mean latency for the currently tested level of difficulty but shortens it by 10% (= 90% of the training mean response times)
+	b) continuously tracks the performance and response time of the last 3 trials
+	=> if the last 3 trials are all correct: adjust time limit by using the average response duration of the last 3 trials but shorten it by 10%
+	=> if the last 3 trials are all errors (or timeouts): adjust time limit by lengthening the current timeout by 10%
+	c) presents a timer on screen that counts down the seconds (Dedovic et al, 2005 used a progress bar)
+
+- presents a performance bar that presents the "average" performance as being in the green (good) region of performance and the participant's
+performance as being (likely) in the red (bad) region of performance (average displayed performance is calcuated across experimental difficulty levels)
+
+- presents feedback (correct, incorrect, timeout) for individual problems for 500ms (editable parameter)
+
+- adds an intertrial interval (ITI): the duration of the intertrial interval is based on parameters.ITI_test (editable parameter) which gets
+adjusted by the difference of the average response latency for the tested level (based on training performance) minus the current response latency. 
+If the current response latency was faster, the ITI increases. If the current response latency was slower (unlikely as a timeout is imposed) the ITI decreases
+	Note: the ITI was added so that control and experimental trials could (roughly) be matched in frequency.
+			(Dedovic et al, 2005, p.321: "To match the frequency of mental arithmetic tasks [in experimental and control condition], the time between tasks is varied as a function of the time limit 
+			imposed during the experimental condition, so that the total number of tasks presented per condition is identical.")
+			The idea is that if the response time is equal to the training response time (which is run under similar conditions to the control condition)
+			the ITI is parameters.iti_test. If it's shorter (because of the timeout) then the ITI gets adjusted up - otherwise down.
+			This works theoretically AS LONG AS there is still a positive ITI (>=0ms) left at the end. If a control trial (or experimental trial, though that is less likely) 
+			is longer than the average response time by parameters.ITI then the number of trials in the experimental and control condition might differ. 
+
+	Note:  each experimental blocks ends with a slide that informs participants of their average performance; followed by a slide that says "Please Wait"
+			(to move on the experimenter has to press the Spacebar - participants cannot move on from here with the mouse)
+
+3) Control:
+
+- minimum suggested duration: 2 minutes per level of difficulty
+- presents a random order of the 5 difficulty level blocks
+- does not put a time limit on performance
+- does not present a performance bar 
+- presents feedback (correct, incorrect, timeout) for individual problems for 500ms (editable parameter)
+- adds an intertrial interval (ITI): the duration of the intertrial interval is based on parameters.ITI_test (editable parameter) which gets
+adjusted by the difference of the average response latency for the tested level (based on training performance) minus the current response latency. 
+If the current response latency was faster, the ITI increases. If the current response latency was slower (unlikely as a timeout is imposed) the ITI decreases
+	Note: the ITI was added so that control and experimental trials could (roughly) be matched in frequency.
+			(Dedovic et al, 2005, p.321: "To match the frequency of mental arithmetic tasks [in experimental and control condition], the time between tasks is varied as a function of the time limit 
+			imposed during the experimental condition, so that the total number of tasks presented per condition is identical.")
+
+	Note:  each control blocks ends with a slide that says "Please Wait"
+
+4) Rest: inside imaging equipment
+
+- presents the userinterface with a message to take a break and not move the mouse until told to do so
+	Note:  the rest block ends with a slide that says "Please Wait" (to move on the experimenter has to press the Spacebar - participant cannot move from here with the mouse)
+
+The order of the 3 test conditions (experimental, control, rest) is counterbalanced by groupnumber (6 different groupnumbers run the 6 possible orders)
+To change the experimental procedure (e.g. if no rest condition should be run), go to section EXPERIMENT and delete the blocks
+that should not run.
+
+groupnumber1: exp, ctrl, rest
+groupnumber2: exp, rest, ctrl
+groupnumber3: ctrl, exp, rest
+groupnumber4: ctrl, rest, exp
+groupnumber5: rest, exp, ctrl
+groupnumber6: rest, ctrl, exp
+
+
+STIMULI:
+this script uses pregenerated sequences for the 5 levels of difficulty. The problems used can be edited under
+section "Editable Lists"
+
+INSTRUCTIONS
+this script uses instructions that are not original to Dedovic et al (2005). They can be edited under
+section "Editable Instructions"
+
+EDITABLE CODE:
+check below for (relatively) easily editable parameters, stimuli, instructions etc. 
+Keep in mind that you can use this script as a template and therefore always "mess" with the entire code to further customize your experiment.
+
+The parameters you can change are:
+
+/trainingtimeout:						sets the timeout for the training block (per difficulty level) in ms (default: 60000ms => 1 min per difficulty level)
+/experimentaltimeout:					sets the timeout of the individual experimental block (per difficulty level) in ms (default: 120000ms => 2 min per difficulty level)
+/feedbackduration:						sets the feedback duration in ms (default: 500ms)
+/restduration:							sets the duration of the rest period in ms (default: 60000ms)
+/iti_test:								the default length of the intertrial interval in ms in experimental and control task that would run if
+										the response latency of the currently solved problem was equal to the one determined during training 
+										(default: 1000ms)
+
+Definition of the Performance Bar:
+Note: the performance bar appears Red until parameters.redperformance; it appears White until parameters.whiteperformance; it appears Green above parameters.whiteperformance
+Default: for 0-60% the bar appears Red; for 60%-80% the bar appears White; above 80% the bar appears Green
+
+/whiteperformance:						sets the performance proportion of the performance bar that appears white (default: 80%)
+										Note: performance > 80% appears green
+/redperformance:						sets the performance proportion of the performance bar that appears red (default: 60%)
+/averageperformance:					sets the average performance that participant compares to (default: 85%) -> used for the average performance triangle
+
+/inactiveDialButtonColor:				the color of the digit buttons (during experiment) when not active (default: blue)
+/activeDialButtonColor:					the color of the digit buttons (during experiment) when active (default: orange)
+											Note: the dial colors on the instruction pages need to be updated manually
+</usermanual>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EDITABLE PARAMETERS: change editable parameters here
+**************************************************************************************************************
+**************************************************************************************************************
+
+<parameters>
+/ trainingtimeout = 60000
+/ experimentaltimeout = 60000
+/ feedbackduration = 500
+/ restduration = 60000
+/ iti_test = 1000
+/ relaxduration = 300000
+/ readduration = 30000
+/ waitduration = 10000
+/ endduration = 120000
+
+/ whiteperformance = 80%
+/ redperformance = 60%
+/ averageperformance = 85%
+
+/inactiveDialButtonColor = blue
+/activeDialButtonColor = orange
+</parameters>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EDITABLE STIMULI: change editable stimuli here
+**************************************************************************************************************
+**************************************************************************************************************
+
+<item feedback>
+/ 1 = ""
+/ 2 = "CORRECT"
+/ 3 = "ERROR"
+/ 4 = "TIMEOUT!"
+</item>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EDITABLE INSTRUCTIONS: change instructions here
+**************************************************************************************************************
+**************************************************************************************************************
+
+<item setups>
+/ 1 = "TrainingSetUp.jpg"
+/ 2 = "ExperimentalSetUp.jpg"
+/ 3 = "TrainingSetUp.jpg"
+</item>
+
+<item traininginstructions>
+/ 1 = "You will be asked to solve arithmetic problems. 
+All problems have solutions ranging from 0-9.
+Your scores will NOT be calculated during this section.
+
+~n~n~n~n~n~n~n~n~n~n~n~n~n
+You can turn the rotary dial until the correct solution is hightlighted:
+
+Turn the dial CLOCKWISE by pressing the RIGHT mouse button.
+Turn the dial COUNTERCLOCKWISE by pressing the LEFT mouse button.
+SUBMIT your response by pressing the MIDDLE mouse button.
+
+You will receive feedback. 
+
+Please Wait."
+/ 2 = "Training will last appr. <%5 * parameters.trainingtimeout/1000/60%> minutes.
+
+Please Wait."
+</item>
+
+<item experimentalinstructions>
+/ 1 = "You will be asked to solve arithmetic problems just like during Training. 
+All problems have solutions ranging from 0-9.
+Your performance in this section will be calculated.
+~n~n~n~n~n~n~n~n~n~n~n~n~n
+You can turn the rotary dial until the correct solution is hightlighted:
+
+Turn the dial CLOCKWISE by pressing the RIGHT mouse button.
+Turn the dial COUNTERCLOCKWISE by pressing the LEFT mouse button.
+SUBMIT your response by pressing the MIDDLE mouse button.
+
+You will receive feedback. 
+
+Please Wait.
+"
+/ 2 = "During the test there is a time limit on how long you have to respond.
+~n~n~n~n~n~n~n~n~n~n~n~n~n~n~n
+You can check how much time you have left by checking the timer in the middle of the screen.
+Try to respond before time is running out but don't just pick any response. Try to be as fast and accurate as you can be.
+
+Please Wait."
+/ 3 = "In order for your data to qualify for further analyses, you must meet a minimum performance standard.
+~n~n~n~n~n~n~n~n~n~n~n~n~n~n~n
+During the test you can compare your performance to that of other participants by looking at the performance bar at the top. 
+The average performance of other participants is in the green range at about 80%-90% correct.
+To qualify, your performance should be close to or better than the average performance.
+
+Please Wait. 
+"
+</item>
+
+<item controlinstructions>
+/ 1 = "You will be asked to solve arithmetic problems just like before. 
+All problems have solutions ranging from 0-9.
+~n~n~n~n~n~n~n~n~n~n~n~n~n
+You can turn the rotary dial until the correct solution is hightlighted:
+
+Turn the dial CLOCKWISE by pressing the RIGHT mouse button.
+Turn the dial COUNTERCLOCKWISE by pressing the LEFT mouse button.
+SUBMIT your response by pressing the MIDDLE mouse button.
+
+You will receive feedback. 
+
+Please Wait.
+"
+/ 2 = "
+~n~n~n~n~n~n~n~n~n~n~n~n~n
+In the control condition there is no enforced time limit. 
+In case of a tie of scores, the performance in this section will be used as a tie breaker.
+
+Try to respond as fast and accurate as you can.
+
+Please Wait."
+</item>
+
+<item restinstructions>
+/ 1 = "The next session is a rest session. 
+During the rest session no problems will appear on screen and you should not use your mouse until a new problem is presented.
+
+Please Wait."
+</item>
+
+<item relaxinstructions>
+/ 1 = "The next session is a relax session. 
+During the rest session no problems will appear on screen and you should not use your mouse until a new problem is presented.
+
+Please Wait."
+</item>
+
+<item endinstructions>
+/ 1 = "Thank You for your Participation !!!"
+</item>
+
+<instruct>
+/ fontstyle = ("Arial", 3.00%, false, false, false, false, 5, 1)
+/ txcolor = black
+</instruct>
+
+<page End>
+You have reached the end of the task.
+^^Thank you!
+</page>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EDITABLE LISTS: change editable lists here
+**************************************************************************************************************
+**************************************************************************************************************
+
+Note: contains 100 pregenerated sequences that fulfill level 1 constraints
+<list level1>
+/ items = (
+"0 - 0 ","1 - 0 ","2 - 0 ","3 - 0 ","4 - 0 ","5 - 0 ","6 - 0 ","7 - 0 ","8 - 0 ","9 - 0 ", 
+"1 - 1 ","2 - 1 ","3 - 1 ","4 - 1 ","5 - 1 ","6 - 1 ","7 - 1 ","8 - 1 ","9 - 1 ","2 - 2 ", 
+"3 - 2 ","4 - 2 ","5 - 2 ","6 - 2 ","7 - 2 ","8 - 2 ","9 - 2 ","3 - 3 ","4 - 3 ","5 - 3 ", 
+"6 - 3 ","7 - 3 ","8 - 3 ","9 - 3 ","4 - 4 ","5 - 4 ","6 - 4 ","7 - 4 ","8 - 4 ","9 - 4 ", 
+"5 - 5 ","6 - 5 ","7 - 5 ","8 - 5 ","9 - 5 ","6 - 6 ","7 - 6 ","8 - 6 ","9 - 6 ","7 - 7 ", 
+"8 - 7 ","9 - 7 ","8 - 8 ","9 - 8 ","9 - 9 ","0 + 0 ","1 + 0 ","2 + 0 ","3 + 0 ","4 + 0 ", 
+"5 + 0 ","6 + 0 ","7 + 0 ","8 + 0 ","9 + 0 ","0 + 1 ","1 + 1 ","2 + 1 ","3 + 1 ","4 + 1 ",
+"5 + 1 ","6 + 1 ","7 + 1 ","8 + 1 ","0 + 2 ","1 + 2 ","2 + 2 ","3 + 2 ","4 + 2 ","5 + 2 ",
+"6 + 2 ","7 + 2 ","0 + 3 ","1 + 3 ","2 + 3 ","3 + 3 ","4 + 3 ","5 + 3 ","6 + 3 ","0 + 4 ",
+"1 + 4 ","2 + 4 ","3 + 4 ","4 + 4 ","5 + 4 ","0 + 5 ","1 + 5 ","2 + 5 ","3 + 5 ","4 + 5 ",
+"0 + 6 ","1 + 6 ","2 + 6 ","3 + 6 ","0 + 7 ","1 + 7 ","2 + 7 ","0 + 8 ","1 + 8 ","0 + 9 ")
+/ replace = false
+</list>
+
+Note: contains 600 pregenerated sequences that fulfill level 2 constraints
+<list level2>
+/ items = (
+"2 - 6 + 5 ","6 + 7 - 9 ","4 + 3 - 3 ","9 + 3 - 5 ","2 - 0 + 4 ","3 + 3 - 5 ","5 - 4 + 0 ","3 + 5 - 0 ","6 - 4 + 5 ","4 + 5 - 9",
+"2 - 5 + 4 ","1 - 6 + 6 ","4 + 7 - 8 ","1 - 4 + 4 ","1 - 3 + 7 ","8 + 7 - 9 ","2 - 3 + 2 ","9 - 5 + 1 ","1 - 2 + 2 ","7 + 3 - 4",
+"8 - 4 + 1 ","2 + 2 - 1 ","7 - 3 + 1 ","0 + 6 - 1 ","3 - 6 + 7 ","8 - 6 + 7 ","3 - 6 + 3 ","8 + 0 - 1 ","1 + 5 - 0 ","9 + 2 - 4",
+"8 + 2 - 8 ","0 - 2 + 8 ","8 + 4 - 4 ","8 + 0 - 2 ","0 + 9 - 9 ","3 - 4 + 1 ","7 + 6 - 6 ","7 - 4 + 6 ","1 - 5 + 4 ","3 + 7 - 1",
+"0 - 1 + 4 ","3 + 5 - 1 ","9 - 0 + 0 ","4 + 0 - 2 ","0 - 4 + 6 ","7 - 7 + 5 ","8 + 0 - 4 ","3 + 4 - 6 ","6 + 2 - 1 ","4 - 2 + 4",
+"3 + 2 - 1 ","1 - 1 + 2 ","5 + 3 - 2 ","7 + 1 - 4 ","4 - 4 + 2 ","4 - 8 + 5 ","5 - 5 + 4 ","1 + 2 - 2 ","1 + 4 - 1 ","4 + 8 - 3",
+"2 - 3 + 8 ","8 - 1 + 1 ","8 + 1 - 7 ","0 - 2 + 6 ","7 + 6 - 5 ","2 + 6 - 4 ","6 - 3 + 1 ","6 + 2 - 3 ","9 - 9 + 4 ","1 - 0 + 0",
+"5 - 4 + 1 ","4 + 1 - 1 ","3 + 8 - 4 ","9 + 3 - 6 ","4 - 7 + 9 ","7 - 1 + 0 ","8 + 4 - 7 ","7 + 4 - 5 ","2 - 8 + 9 ","9 - 7 + 0",
+"2 - 3 + 4 ","9 + 5 - 5 ","9 + 4 - 5 ","1 + 7 - 5 ","4 + 6 - 6 ","3 - 2 + 5 ","0 + 5 - 3 ","6 + 0 - 4 ","6 - 6 + 6 ","9 - 6 + 5",
+"0 - 3 + 6 ","5 + 3 - 5 ","2 - 7 + 8 ","0 - 0 + 5 ","4 + 4 - 1 ","9 - 4 + 2 ","7 + 4 - 7 ","0 + 9 - 4 ","5 + 6 - 6 ","2 + 7 - 5",
+"3 - 0 + 0 ","9 + 0 - 6 ","0 - 3 + 4 ","5 + 2 - 6 ","9 + 6 - 7 ","6 + 0 - 3 ","5 + 5 - 5 ","0 - 1 + 7 ","7 + 3 - 9 ","2 - 4 + 5",
+"1 - 0 + 4 ","2 - 2 + 1 ","7 + 2 - 2 ","4 + 7 - 4 ","7 - 3 + 0 ","6 + 1 - 1 ","6 + 3 - 1 ","3 + 7 - 5 ","5 + 0 - 2 ","1 + 0 - 1",
+"6 + 4 - 2 ","9 - 1 + 0 ","6 - 5 + 7 ","4 + 2 - 2 ","1 - 6 + 7 ","5 - 4 + 3 ","7 + 0 - 7 ","3 + 0 - 2 ","5 + 2 - 1 ","5 + 5 - 4",
+"6 + 2 - 4 ","0 + 6 - 4 ","6 + 5 - 8 ","4 - 2 + 3 ","7 + 8 - 7 ","2 - 4 + 9 ","4 + 2 - 3 ","5 + 7 - 8 ","9 + 0 - 5 ","7 - 4 + 3",
+"6 + 2 - 6 ","8 + 4 - 3 ","8 - 2 + 2 ","5 - 2 + 0 ","3 - 8 + 8 ","5 - 7 + 6 ","7 - 6 + 0 ","1 - 2 + 4 ","5 + 2 - 4 ","6 + 5 - 6",
+"7 + 0 - 3 ","4 - 5 + 3 ","3 + 3 - 2 ","0 + 4 - 2 ","3 + 7 - 3 ","2 + 8 - 4 ","2 - 4 + 3 ","7 - 8 + 2 ","7 - 5 + 1 ","6 - 3 + 5",
+"1 + 5 - 5 ","3 + 1 - 0 ","7 - 8 + 8 ","8 - 3 + 3 ","6 - 5 + 2 ","0 - 2 + 7 ","5 - 6 + 7 ","6 + 3 - 2 ","8 - 7 + 8 ","6 - 6 + 1",
+"7 - 9 + 8 ","3 - 4 + 7 ","0 - 1 + 6 ","6 - 9 + 5 ","2 + 7 - 6 ","2 + 4 - 6 ","3 + 7 - 2 ","8 - 2 + 3 ","8 - 7 + 6 ","3 - 7 + 8",
+"5 + 8 - 8 ","8 - 6 + 2 ","6 - 6 + 4 ","6 + 3 - 5 ","4 + 9 - 4 ","1 + 4 - 0 ","8 - 7 + 7 ","6 - 6 + 8 ","9 + 1 - 7 ","1 + 1 - 0",
+"6 - 8 + 8 ","2 - 5 + 6 ","0 + 5 - 0 ","4 - 5 + 1 ","2 + 3 - 4 ","8 + 3 - 7 ","2 - 9 + 8 ","1 - 5 + 6 ","4 + 5 - 5 ","8 + 5 - 6",
+"5 + 6 - 7 ","4 - 6 + 5 ","7 - 2 + 4 ","3 + 8 - 9 ","2 - 2 + 9 ","6 - 6 + 9 ","4 + 9 - 9 ","2 + 7 - 9 ","6 + 4 - 3 ","7 + 2 - 5",
+"1 - 3 + 6 ","3 - 2 + 3 ","4 + 5 - 4 ","6 + 6 - 3 ","0 + 6 - 6 ","7 - 4 + 2 ","2 - 3 + 9 ","5 + 0 - 0 ","1 + 8 - 4 ","1 + 9 - 4",
+"1 + 3 - 4 ","2 - 8 + 8 ","1 + 8 - 9 ","1 - 7 + 6 ","0 - 1 + 2 ","6 + 5 - 2 ","0 + 5 - 2 ","4 - 0 + 1 ","9 - 2 + 0 ","6 - 9 + 8",
+"1 + 5 - 3 ","3 - 4 + 3 ","5 - 6 + 8 ","0 - 4 + 8 ","8 - 9 + 7 ","6 + 5 - 3 ","9 + 6 - 8 ","0 - 2 + 4 ","3 + 5 - 6 ","0 - 9 + 9",
+"4 - 3 + 6 ","9 - 6 + 1 ","5 - 0 + 4 ","0 - 1 + 9 ","1 + 3 - 0 ","8 + 6 - 8 ","8 + 2 - 6 ","1 - 3 + 3 ","6 + 7 - 5 ","3 - 3 + 9",
+"9 - 6 + 3 ","7 - 6 + 5 ","3 + 3 - 1 ","1 + 8 - 8 ","5 + 9 - 8 ","4 + 4 - 0 ","2 + 9 - 6 ","1 - 8 + 9 ","6 - 6 + 3 ","7 - 2 + 0",
+"1 + 2 - 0 ","7 - 8 + 1 ","3 + 1 - 2 ","6 - 2 + 1 ","3 - 3 + 6 ","6 - 7 + 1 ","7 + 0 - 4 ","6 - 2 + 0 ","0 + 7 - 7 ","9 - 3 + 3",
+"3 - 3 + 5 ","2 - 2 + 5 ","3 - 4 + 9 ","4 - 7 + 4 ","3 + 1 - 4 ","8 + 1 - 3 ","2 - 1 + 6 ","6 - 4 + 6 ","0 - 3 + 7 ","6 - 8 + 9",
+"2 + 9 - 3 ","8 + 3 - 8 ","1 + 9 - 6 ","5 - 5 + 8 ","1 - 3 + 4 ","2 - 6 + 8 ","1 + 4 - 2 ","6 + 1 - 6 ","6 - 7 + 9 ","7 - 2 + 3",
+"5 - 5 + 7 ","9 + 2 - 5 ","3 + 4 - 7 ","2 - 0 + 6 ","1 - 6 + 9 ","4 - 3 + 7 ","7 + 7 - 7 ","8 + 4 - 8 ","8 + 1 - 6 ","7 + 7 - 8",
+"1 + 6 - 3 ","6 - 0 + 3 ","8 - 5 + 6 ","9 + 3 - 4 ","6 + 6 - 6 ","9 + 5 - 9 ","0 + 8 - 4 ","5 + 5 - 1 ","8 + 0 - 0 ","8 - 9 + 6",
+"6 + 3 - 3 ","6 - 2 + 3 ","7 + 5 - 6 ","7 + 5 - 9 ","1 - 3 + 5 ","9 + 6 - 6 ","1 - 2 + 9 ","9 - 5 + 4 ","3 - 0 + 6 ","0 + 9 - 5",
+"9 + 8 - 9 ","9 + 0 - 7 ","9 - 9 + 9 ","3 + 8 - 5 ","3 + 4 - 1 ","4 - 4 + 3 ","4 + 4 - 4 ","3 - 9 + 6 ","5 - 4 + 7 ","2 + 4 - 0",
+"2 + 4 - 5 ","8 + 1 - 9 ","9 - 6 + 6 ","2 + 4 - 1 ","4 - 4 + 4 ","0 + 7 - 3 ","1 + 8 - 3 ","5 + 4 - 9 ","8 - 5 + 3 ","3 + 8 - 7",
+"8 + 4 - 9 ","5 - 3 + 1 ","3 - 2 + 2 ","1 - 5 + 7 ","0 + 4 - 1 ","9 + 1 - 1 ","1 - 3 + 2 ","7 + 2 - 7 ","2 + 4 - 2 ","7 + 5 - 5",
+"4 - 6 + 3 ","5 - 3 + 4 ","9 + 3 - 7 ","3 + 2 - 5 ","9 - 7 + 6 ","0 - 4 + 4 ","4 + 6 - 1 ","8 + 5 - 9 ","7 - 2 + 1 ","2 + 8 - 1",
+"4 + 7 - 5 ","9 + 0 - 3 ","8 - 8 + 0 ","0 + 9 - 3 ","0 + 9 - 2 ","7 + 8 - 8 ","4 + 4 - 2 ","1 + 9 - 5 ","2 + 3 - 1 ","1 + 6 - 2",
+"1 + 8 - 2 ","6 + 2 - 2 ","9 - 4 + 0 ","9 + 1 - 4 ","7 - 1 + 2 ","3 + 9 - 3 ","0 + 4 - 4 ","5 - 0 + 2 ","5 + 0 - 4 ","8 + 2 - 5",
+"2 + 6 - 6 ","6 + 1 - 4 ","4 - 0 + 2 ","5 - 9 + 6 ","5 + 4 - 4 ","4 - 4 + 0 ","5 + 4 - 7 ","7 - 4 + 5 ","3 - 3 + 1 ","0 + 8 - 3",
+"2 - 2 + 2 ","4 - 4 + 1 ","5 + 5 - 7 ","2 + 2 - 0 ","0 - 8 + 8 ","8 + 6 - 7 ","8 + 2 - 3 ","7 - 4 + 4 ","1 + 9 - 7 ","4 + 2 - 1",
+"6 + 2 - 8 ","9 - 8 + 6 ","7 + 6 - 9 ","0 + 5 - 5 ","7 + 3 - 2 ","7 - 5 + 6 ","7 - 9 + 5 ","5 + 3 - 1 ","9 - 8 + 2 ","3 - 3 + 7",
+"1 - 6 + 5 ","0 - 0 + 3 ","2 - 4 + 6 ","2 - 6 + 6 ","0 + 3 - 0 ","0 + 7 - 0 ","5 - 2 + 1 ","4 - 7 + 8 ","6 - 5 + 6 ","8 + 8 - 8",
+"0 - 1 + 1 ","8 + 0 - 3 ","2 + 6 - 2 ","5 - 8 + 7 ","9 + 1 - 9 ","2 + 6 - 3 ","2 - 5 + 5 ","4 + 4 - 7 ","5 + 5 - 8 ","0 + 4 - 0",
+"6 + 4 - 1 ","1 + 4 - 3 ","7 - 7 + 1 ","4 + 7 - 9 ","4 - 8 + 4 ","6 - 9 + 3 ","6 + 3 - 0 ","2 - 0 + 2 ","2 + 7 - 4 ","2 + 7 - 1",
+"7 + 6 - 7 ","9 - 4 + 4 ","3 + 6 - 5 ","1 + 7 - 7 ","4 + 5 - 3 ","5 - 6 + 2 ","6 - 7 + 8 ","2 - 6 + 9 ","3 + 7 - 4 ","8 - 7 + 4",
+"6 + 7 - 6 ","1 + 8 - 0 ","1 + 9 - 8 ","6 + 3 - 7 ","6 - 3 + 3 ","8 + 7 - 6 ","8 - 4 + 5 ","5 - 3 + 7 ","7 - 6 + 8 ","6 + 9 - 9",
+"4 - 6 + 7 ","7 + 1 - 0 ","3 - 1 + 1 ","7 + 1 - 8 ","5 - 7 + 8 ","8 - 9 + 8 ","7 + 5 - 8 ","3 - 7 + 7 ","3 - 1 + 2 ","4 + 6 - 8",
+"5 + 8 - 4 ","7 + 2 - 3 ","8 + 7 - 8 ","4 - 5 + 9 ","4 - 4 + 7 ","6 - 3 + 0 ","6 - 1 + 3 ","3 - 3 + 2 ","8 + 4 - 5 ","2 - 3 + 7",
+"5 + 4 - 0 ","9 + 0 - 0 ","6 - 4 + 4 ","2 - 2 + 6 ","0 + 3 - 2 ","3 - 1 + 7 ","0 - 5 + 5 ","7 + 1 - 7 ","6 - 8 + 3 ","5 + 5 - 6",
+"2 - 0 + 5 ","3 + 9 - 6 ","1 + 7 - 2 ","8 + 5 - 5 ","6 - 9 + 6 ","5 + 4 - 3 ","2 - 2 + 4 ","6 - 4 + 1 ","8 + 8 - 7 ","9 + 4 - 4",
+"4 - 3 + 5 ","1 + 7 - 6 ","6 + 5 - 9 ","5 - 1 + 3 ","8 - 6 + 1 ","9 + 4 - 8 ","1 - 3 + 8 ","0 - 2 + 9 ","7 + 4 - 3 ","2 + 9 - 4",
+"2 + 6 - 5 ","3 + 5 - 4 ","3 - 4 + 4 ","3 - 7 + 5 ","4 - 3 + 3 ","6 + 7 - 4 ","6 - 3 + 2 ","9 + 2 - 9 ","4 + 6 - 5 ","9 - 5 + 0",
+"4 + 0 - 0 ","1 - 1 + 3 ","4 - 8 + 7 ","7 + 3 - 8 ","6 + 6 - 4 ","3 + 6 - 6 ","8 - 7 + 5 ","5 + 7 - 9 ","3 + 5 - 3 ","5 - 6 + 4",
+"2 - 1 + 7 ","1 + 7 - 3 ","3 + 2 - 3 ","5 - 8 + 3 ","4 + 5 - 6 ","2 - 9 + 9 ","5 - 1 + 4 ","3 - 3 + 4 ","1 - 1 + 8 ","4 - 9 + 5",
+"9 + 7 - 8 ","4 - 7 + 5 ","5 + 7 - 3 ","6 + 5 - 4 ","3 - 5 + 7 ","0 + 9 - 1 ","1 + 6 - 5 ","3 - 3 + 3 ","7 - 7 + 6 ","7 + 2 - 6",
+"1 + 6 - 1 ","0 - 0 + 0 ","3 - 4 + 2 ","4 - 7 + 7 ","5 - 1 + 1 ","8 + 5 - 4 ","1 + 5 - 2 ","3 - 5 + 3 ","5 - 5 + 1 ","0 - 3 + 5",
+"0 - 0 + 7 ","6 - 1 + 0 ","3 - 5 + 4 ","1 - 2 + 7 ","4 + 6 - 7 ","6 - 8 + 4 ","1 + 8 - 5 ","3 - 2 + 0 ","1 - 2 + 5 ","8 + 0 - 8",
+"8 - 4 + 4 ","7 + 2 - 9 ","8 - 9 + 4 ","4 - 5 + 4 ","2 - 2 + 0 ","0 + 8 - 6 ","1 + 9 - 9 ","1 - 4 + 9 ","8 - 8 + 7 ","1 + 2 - 1",
+"4 - 3 + 0 ","9 - 9 + 8 ","2 + 5 - 4 ","2 + 7 - 2 ","9 + 1 - 8 ","5 + 6 - 9 ","1 - 0 + 8 ","2 - 7 + 6 ","3 + 5 - 2 ","5 - 1 + 0",
+"9 + 2 - 6 ","8 - 8 + 1 ","2 - 3 + 1 ","5 - 6 + 9 ","4 - 1 + 0 ","5 + 3 - 7 ","5 + 2 - 7 ","8 + 6 - 6 ","5 + 1 - 2 ","7 + 5 - 4 ")
+/ replace = false
+</list>
+
+Note: contains 300 pregenerated sequences that fulfill level 3 constraints
+<list level3>
+/ items = (
+"6 + 55 - 60 ", "7 - 0 * 24 ", "42 + 0 - 36 ", "1 - 18 + 20 ", "1 - 95 + 96 ", "1 * 91 - 91 ", "35 + 6 - 38 ", "4 + 76 - 80 ", "7 - 85 + 84 ", "5 - 97 + 92 ", 
+"0 - 7 + 10 ", "97 + 2 - 92 ", "28 + 4 - 25 ", "50 * 1 - 45 ", "71 - 62 + 0 ", "7 - 64 + 61 ", "97 + 0 - 95 ", "1 + 84 - 82 ", "78 + 1 - 79 ", "31 + 7 - 36 ", 
+"13 * 5 - 65 ", "3 - 36 + 33 ", "0 - 76 + 85 ", "9 - 64 + 64 ", "16 - 15 + 6 ", "73 - 74 + 2 ", "9 - 39 + 30 ", "25 + 1 - 17 ", "9 - 97 + 90 ", "44 - 2 * 22 ", 
+"5 - 88 + 92 ", "16 - 1 * 11 ", "17 + 4 - 20 ", "2 - 52 + 57 ", "89 + 5 - 87 ", "9 - 14 + 14 ", "2 + 61 - 54 ", "0 - 83 + 88 ", "1 + 99 - 92 ", "1 + 69 - 61 ", 
+"8 - 86 + 85 ", "55 - 60 + 8 ", "18 + 6 - 19 ", "5 + 11 - 8 ", "5 + 89 - 90 ", "75 - 80 + 7 ", "2 + 58 - 54 ", "6 + 68 - 72 ", "6 - 56 + 59 ", "42 + 2 - 39 ", 
+"45 + 8 - 46 ", "1 * 63 - 57 ", "0 + 24 - 16 ", "47 + 6 - 46 ", "71 * 0 + 5 ", "61 + 8 - 68 ", "49 + 0 - 41 ", "33 - 27 + 2 ", "58 + 8 - 59 ", "4 * 9 - 30 ", 
+"3 + 21 - 20 ", "3 - 0 * 23 ", "4 * 18 - 66 ", "16 + 2 - 10 ", "44 - 42 * 1 ", "8 - 76 + 71 ", "31 + 1 - 25 ", "0 + 82 - 80 ", "71 - 75 + 6 ", "6 + 78 - 80 ", 
+"15 * 0 + 8 ", "6 + 13 * 0 ", "39 + 6 - 44 ", "48 + 3 - 43 ", "0 + 29 - 24 ", "8 + 17 - 16 ", "6 + 48 - 48 ", "87 + 1 - 84 ", "6 + 71 - 75 ", "20 + 5 - 22 ", 
+"47 - 1 * 47 ", "53 - 49 + 1 ", "7 + 76 * 0 ", "31 + 5 - 31 ", "6 + 48 - 52 ", "9 + 61 - 61 ", "7 + 13 - 15 ", "8 - 67 + 64 ", "26 * 2 - 43 ", "8 - 49 + 41 ", 
+"71 * 1 - 64 ", "37 - 41 + 8 ", "1 * 66 - 65 ", "8 - 28 + 24 ", "39 * 2 - 76 ", "6 - 41 + 43 ", "0 - 33 + 41 ", "1 + 52 - 50 ", "84 - 84 + 5 ", "88 - 89 + 4 ", 
+"80 - 77 + 5 ", "0 - 61 + 61 ", "3 + 18 * 0 ", "96 + 3 - 92 ", "90 + 4 - 85 ", "5 + 91 - 93 ", "11 + 9 - 16 ", "8 + 70 - 70 ", "76 - 67 + 0 ", "94 * 1 - 92 ", 
+"9 * 3 - 20 ", "2 + 46 - 44 ", "52 + 0 - 47 ", "31 - 39 + 8 ", "76 + 2 - 78 ", "0 - 81 + 88 ", "12 * 4 - 42 ", "37 - 37 * 1 ", "94 + 5 - 91 ", "0 + 31 - 22 ", 
+"49 + 4 - 53 ", "46 + 2 - 47 ", "77 * 1 - 75 ", "17 - 19 + 4 ", "53 - 59 + 7 ", "48 + 5 - 48 ", "72 * 1 - 70 ", "0 * 29 + 4 ", "5 + 37 - 33 ", "9 - 47 + 46 ",
+ "55 - 56 + 8 ", "34 + 8 - 41 ", "9 + 73 - 80 ", "2 - 55 + 62 ", "76 - 75 + 1 ", "68 + 8 - 67 ", "67 + 4 - 68 ", "7 - 70 + 68 ", "92 + 1 - 91 ", "59 - 17 * 3 ", 
+"65 - 69 + 7 ", "22 + 0 - 18 ", "59 + 7 - 64 ", "46 - 47 + 4 ", "81 - 82 + 7 ", "88 - 81 + 2 ", "4 - 94 + 92 ", "31 + 6 - 36 ", "3 - 40 + 41 ", "0 + 19 - 11 ", 
+"21 + 9 - 29 ", "64 - 1 * 58 ", "0 - 84 + 91 ", "9 - 24 + 23 ", "4 - 21 + 24 ", "2 * 32 - 55 ", "6 - 71 + 73 ", "58 + 8 - 66 ", "7 - 70 + 69 ", "0 - 14 + 17 ", 
+"5 + 27 - 29 ", "82 + 8 - 87 ", "5 * 18 - 81 ", "98 - 95 + 0 ", "7 + 29 * 0 ", "8 - 51 * 0 ", "31 * 1 - 29 ", "47 - 50 + 4 ", "0 + 41 - 37 ", "83 - 7 * 11 ", 
+"4 - 0 * 71 ", "21 + 0 - 21 ", "4 - 0 * 24 ", "27 - 35 + 9 ", "54 - 57 + 8 ", "84 - 79 + 1 ", "9 + 97 - 98 ", "64 - 59 + 2 ", "8 + 0 * 99 ", "54 + 2 - 55 ", 
+"31 - 38 + 8 ", "65 + 5 - 63 ", "5 - 34 + 37 ", "1 - 69 * 0 ", "16 + 8 - 23 ", "33 * 2 - 61 ", "3 - 8 + 11 ", "2 * 11 - 18 ", "2 - 24 + 29 ", "3 * 25 - 75 ", 
+"4 + 0 * 64 ", "0 * 55 + 1 ", "6 + 56 - 53 ", "47 + 3 - 44 ", "8 - 49 + 50 ", "97 - 94 + 3 ", "3 + 61 - 55 ", "78 + 3 - 73 ", "64 - 2 * 32 ", "27 - 19 + 1 ", 
+"1 - 8 + 12 ", "64 + 4 - 60 ", "0 - 37 + 39 ", "2 - 47 + 53 ", "6 + 29 - 26 ", "55 - 53 + 3 ", "1 * 26 - 21 ", "1 * 25 - 24 ", "64 - 72 + 9 ", "0 * 72 + 2 ", 
+"0 * 97 + 3 ", "77 + 3 - 72 ", "7 * 12 - 84 ", "42 * 2 - 81 ", "89 + 5 - 85 ", "3 - 38 * 0 ", "44 - 44 + 7 ", "92 + 0 - 88 ", "78 - 24 * 3 ", "0 * 32 + 4 ", 
+"90 - 86 + 5 ", "46 * 2 - 91 ", "8 + 62 - 63 ", "11 * 0 + 7 ", "31 * 0 + 1 ", "74 - 79 + 5 ", "1 - 44 + 46 ", "39 + 8 - 42 ", "2 - 57 + 56 ", "27 - 30 + 7 ", 
+"5 - 0 * 55 ", "38 - 40 + 3 ", "88 + 1 - 87 ", "88 + 2 - 81 ", "20 * 0 + 1 ", "26 + 6 - 29 ", "25 + 5 - 22 ", "52 - 46 + 3 ", "77 - 77 + 0 ", "6 - 70 + 68 ", 
+"8 - 45 * 0 ", "74 + 0 - 66 ", "71 * 1 - 67 ", "92 - 83 * 1 ", "7 + 70 - 70 ", "4 * 24 - 88 ", "7 - 66 + 65 ", "1 + 30 - 28 ", "45 - 49 + 7 ", "0 * 80 + 6 ", 
+"19 + 8 - 21 ", "33 + 9 - 38 ", "82 - 86 + 4 ", "7 - 15 + 15 ", "0 + 94 - 86 ", "9 - 42 + 40 ", "1 * 29 - 24 ", "14 + 0 - 5 ", "2 - 0 * 34 ", "56 + 6 - 61 ", 
+"69 - 13 * 5 ", "0 + 0 * 49 ", "4 - 34 + 30 ", "49 - 52 + 8 ", "2 + 46 - 39 ", "23 - 3 * 5 ", "51 - 43 + 0 ", "5 - 35 + 33 ", "1 - 39 + 46 ", "0 * 68 + 3 ", 
+"38 - 43 + 5 ", "2 + 64 - 58 ", "1 - 32 + 33 ", "73 - 33 * 2 ", "7 + 45 - 47 ", "38 - 42 + 4 ", "2 - 57 + 61 ", "31 + 3 - 33 ", "22 - 24 + 5 ", "98 - 2 * 49 ", 
+"13 - 12 + 1 ", "62 - 69 + 8 ", "69 + 1 - 67 ", "16 + 7 - 17 ", "24 + 7 - 29 ", "5 + 88 - 86 ", "0 - 80 + 81 ", "87 + 6 - 87 ", "5 - 59 + 55 ", "33 - 35 + 5 ", 
+"8 - 77 + 78 ", "1 * 69 - 65 ", "51 - 52 + 4 ", "26 * 2 - 44 ", "90 - 93 + 8 ", "0 + 62 - 61 ", "7 + 58 - 61 ", "50 + 7 - 51 ", "27 - 26 + 3 ", "43 + 1 - 35 ")
+/ replace = false
+</list>
+
+Note: contains 72 pregenerated sequences that fulfill level 4 constraints
+<list level4>
+/ items = (
+"12 * 4 + 4 - 46 ", "2 + 68 - 1 * 62 ", "12 * 2 + 7 - 24 ", "67 + 2 - 4 * 17 ", "24 + 5 - 1 * 29 ", 
+"1 + 1 * 54 - 46 ", "2 - 17 * 5 + 88 ", "46 - 47 + 5 * 2 ", "8 * 0 + 71 - 69 ", "8 - 79 + 2 * 37 ", 
+"83 + 7 * 0 - 80 ", "7 - 23 + 5 * 4 ", "34 * 2 + 2 - 66 ", "5 * 9 - 79 + 41 ", "1 + 51 - 8 * 6 ", 
+"95 + 5 - 99 * 1 ", "4 - 0 + 0 * 53 ", "69 - 81 + 6 * 3 ", "0 * 2 + 90 - 84 ", "8 + 68 * 1 - 70 ", 
+"1 * 3 + 37 - 31 ", "5 + 1 - 99 * 0 ", "8 - 32 + 3 * 9 ", "9 * 8 + 26 - 96 ", "62 + 6 * 2 - 74 ", 
+"2 * 9 - 81 + 72 ", "6 - 36 + 1 * 36 ", "6 + 30 * 3 - 88 ", "8 - 25 * 2 + 48 ", "7 + 43 - 15 * 3 ", 
+"91 + 0 * 1 - 83 ", "0 + 93 - 90 * 1 ", "6 * 3 + 51 - 62 ", "6 - 52 + 17 * 3 ", "52 * 1 + 4 - 52 ", 
+"1 * 6 + 72 - 72 ", "95 - 1 * 96 + 3 ", "2 + 64 * 0 - 2 ", "40 - 36 + 7 * 0 ", "69 * 0 - 5 + 10 ", 
+"2 * 0 - 54 + 63 ", "85 - 11 * 8 + 6 ", "1 * 2 - 57 + 63 ", "74 - 72 * 1 + 2 ", "8 - 97 + 13 * 7 ", 
+"3 * 2 + 70 - 69 ", "75 + 3 - 13 * 6 ", "19 + 2 * 8 - 27 ", "9 - 10 + 2 * 1 ", "10 + 0 * 63 - 5 ", 
+"5 * 6 + 43 - 73 ", "10 + 7 * 4 - 35 ", "1 * 0 + 96 - 89 ", "9 - 15 + 3 * 4 ", "10 - 45 + 9 * 4 ", 
+"3 * 5 + 3 - 13 ", "7 * 1 + 91 - 96 ", "0 * 79 + 13 - 5 ", "87 - 21 * 4 + 3 ", "3 + 55 - 58 * 1 ", 
+"13 - 7 + 86 * 0 ", "68 - 61 + 0 * 5 ", "43 - 47 * 1 + 6 ", "9 - 47 + 1 * 38 ", "1 * 0 + 14 - 11 ", 
+"4 * 9 + 3 - 36 ", "86 - 97 + 4 * 5 ", "52 + 6 * 7 - 93 ", "59 - 12 * 5 + 4 ", "6 * 7 + 29 - 67 ", 
+"0 * 3 + 64 - 61 ", "37 - 37 * 1 + 1 ")
+/ replace = false
+</list>
+
+Note: contains 70 pregenerated problems for level 5 problems
+<list level5>
+/ items = (
+"0 + 41 * 35 * 0 ", "26 - 33 / 33 * 19 ", "6 + 0 / 79 * 26 ", "52 / 26 + 0 * 66 ", "5 - 0 / 68 * 63 ",
+"49 * 85 / 85 - 48 ", "85 - 68 / 68 * 78 ", "5 - 0 / 20 * 64 ", "0 + 43 * 0 * 52 ", "84 * 99 / 84 - 94 ",
+"74 - 74 * 84 / 84 ", "66 * 46 / 66 - 45 ", "87 * 0 / 74 + 8 ", "4 - 69 / 63 * 0 ", "3 + 0 / 91 * 12 ",
+"3 + 80 / 80 * 0 ", "69 / 46 * 18 - 20 ", "0 / 76 - 0 * 76 ", "7 * 20 / 14 - 6 ", "42 - 19 * 20 / 10 ",
+"75 * 79 / 75 - 74 ", "48 - 43 * 87 / 87 ", "42 - 62 * 19 / 31 ", "33 / 33 * 11 - 3 ", "84 * 90 / 72 - 96 ",
+"26 - 18 * 33 / 33 ", "92 - 88 / 25 * 25 ", "98 - 98 / 72 * 72 ", "8 + 39 * 0 * 42 ", "3 + 9 * 32 / 72 ",
+"8 + 0 / 3 * 30 ", "1 - 0 * 48 / 85 ", "98 * 78 / 84 - 89 ", "38 - 22 * 90 / 55 ", "9 + 0 * 52 / 39 ",
+"28 * 0 + 39 / 39 ", "0 / 16 * 92 + 1 ", "8 + 0 * 24 / 60 ", "8 - 31 * 25 * 0 ", "54 * 0 * 38 + 9 ",
+"11 / 22 * 84 - 40 ", "4 * 35 * 0 - 0 ", "8 - 15 * 0 / 51 ", "5 - 73 * 0 / 19 ", "4 - 21 / 69 * 0 ", 
+"7 + 66 / 10 * 0 ", "7 + 90 * 0 / 30 ", "0 * 65 + 84 / 21 ", "27 - 25 / 21 * 21 ", "55 - 56 / 56 * 54 ", 
+"20 * 4 / 40 + 6 ", "0 * 43 - 7 * 0 ", "21 - 72 / 72 * 13 ", "72 * 18 / 48 - 19 ", "3 + 0 / 58 * 87 ", 
+"38 * 25 / 50 - 12 ", "2 + 34 * 0 / 1 ", "0 + 95 * 0 / 22 ", "51 * 28 / 51 - 22 ", "1 + 12 * 61 * 0 ", 
+"88 / 82 * 82 - 79 ", "3 / 3 - 34 * 0 ", "31 / 62 * 50 - 23 ", "91 * 6 * 0 + 9 ", "48 - 96 / 66 * 33 ", 
+"4 + 0 * 13 / 36 ", "16 - 39 * 19 / 57 ", "84 / 44 * 22 - 41 ", "2 + 9 * 23 / 69 ", "38 / 62 * 62 - 37 ")
+/ replace = false
+</list>
+
+**************************************************************************************************************
+								!!!REMAINING CODE: Customize after careful consideration only!!!
+**************************************************************************************************************
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	DEFAULTS
+**************************************************************************************************************
+**************************************************************************************************************
+script requires Inquisit 5.0.0.0 or higher
+
+<defaults>
+/ canvasaspectratio = (4,3)
+/ minimumversion = "5.0.0.0"
+/ fontstyle = ("Arial", 3%, false, false, false, false, 5, 1)
+/ txbgcolor = gray
+/ txcolor = black
+/ screencolor = gray
+</defaults>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	DATA
+**************************************************************************************************************
+**************************************************************************************************************
+
+Note: data file explanations under User Manual Information at the top
+
+***********************
+raw data file
+***********************
+<data>
+/ separatefiles = true
+/ columns = (build, computer.platform, date, time, subject, group, values.order, blockcode, blocknum, trialcode, trialnum, values.condition, values.level,
+values.problem, values.solution, values.dialposition, 
+response, values.ACC, values.error, latency, values.RT_complete, values.trialtimeout, values.currenttimeout_experimental, 
+list.last3experimentaltrials_errors.itemcount, 
+values.increasetimeout, values.decreasetimeout,
+values.meanrt_complete1, values.meanrt_complete2, values.meanrt_complete3, values.meanrt_complete4, values.meanrt_complete5, values.adjustedITI)
+</data>
+
+***********************
+summary data file
+***********************
+<summarydata>
+/ columns = (script.startdate, script.starttime, script.subjectid, script.groupid, values.order, script.elapsedtime, computer.platform, values.completed,
+values.meanRT_complete1, values.meanRT_complete2, values.meanRT_complete3, values.meanRT_complete4, values.meanRT_complete5,
+expressions.percentcorrect_exp, expressions.percentcorrect_exp1, expressions.percentcorrect_exp2, expressions.percentcorrect_exp3, expressions.percentcorrect_exp4, expressions.percentcorrect_exp5,
+expressions.meanrt_exp, expressions.meanrt_exp1, expressions.meanrt_exp2, expressions.meanrt_exp3, expressions.meanrt_exp4, expressions.meanrt_exp5,
+expressions.percentcorrect_ctrl, expressions.percentcorrect_ctrl1, expressions.percentcorrect_ctrl2, expressions.percentcorrect_ctrl3, expressions.percentcorrect_ctrl4, expressions.percentcorrect_ctrl5,
+expressions.meanrt_ctrl, expressions.meanrt_ctrl1, expressions.meanrt_ctrl2, expressions.meanrt_ctrl3, expressions.meanrt_ctrl4, expressions.meanrt_ctrl5,
+values.count_exp1, values.count_exp2, values.count_exp3, values.count_exp4, values.count_exp5, 
+values.count_ctrl1, values.count_ctrl2, values.count_ctrl3, values.count_ctrl4, values.count_ctrl5
+)
+/ separatefiles = true
+</summarydata>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	VALUES: automatically updated
+**************************************************************************************************************
+**************************************************************************************************************
+                                    
+/completed:				0 = script was not completed; 1 = script was completed (all conditions run)
+/condition:				1 = training; 2 = experimental; 3 = control; 4 = rest; 5 = relax; 6 = end
+/level:					stores the level of the presently presented problem
+/problem:				stores the presently presented problem 
+/presentedproblem:		adds '= ?' to the presently presented problem
+/solution:				stores the solution to the presently presented problem
+/currenttimeout_experimental:	stores the max. duration in ms of the currently problem trial sequence
+/trialtimeout:			stores the max. duration in ms of the currently presented portion of the current problem trial sequence
+							(Note: each dial press starts a new trial, so trialtimeout needs to be continuously adjusted)
+
+/increasetimeout:		1 = the last 3 responses were incorrect or timeouts; 0 = otherwise
+/decreasetimeout:		1 = the last 3 responses were all correct; 0 = otherwise
+/dialposition:			the currently 'highlighted' dial
+
+/currentmeanRT:			current mean response latency in ms that is used to establish the experimental trial timeout time
+/adjustedITI:			the duration of the actual feedback for experimental and control trials
+
+<values>
+/ completed = 0
+/ condition = 1
+/ level = 0
+/ problem = ""
+/ presentedproblem = "4 + 3 - 2 = ?"
+/ solution = ""
+/ trialtimeout = 0
+/ currenttimeout_experimental = 0
+/ increasetimeout = 0
+/ decreasetimeout = 0
+/ dialposition = 1
+/ currentmeanRT = 0
+/ adjustedITI = 0
+
+/ clocktimeout = 0
+</values>
+
+/correct:					0 = Timeout; 1 = correct response; 2 = error response
+/error:						1 = error: erroneous response or timeout; 0 = correct response
+/rt:						stores the latency in ms of the current trial segment
+/RT_complete:				stores the response latency in ms of the current complete trial
+/counttrials_training:		counts all completed training trials
+/counttrials_exp:			counts all completed experimental trials
+/correct_training:			counts all correct training trials
+/meanRT_complete1:			stores the mean response time in ms of level 1 training trials (not corrected for accuracy)
+/meanRT_complete2:			stores the mean response time in ms of level 1 training trials (not corrected for accuracy)
+/meanRT_complete3:			stores the mean response time in ms of level 1 training trials (not corrected for accuracy)
+/meanRT_complete4:			stores the mean response time in ms of level 1 training trials (not corrected for accuracy)
+/meanRT_complete5:			stores the mean response time in ms of level 1 training trials (not corrected for accuracy)
+(note: the values are set to 10s in case the experimental trials are run without running training first)
+
+/count_exp1:				stores the number of level 1 concluded experimental trials
+/count_exp2:				stores the number of level 2 concluded experimental trials
+/count_exp3:				stores the number of level 3 concluded experimental trials
+/count_exp4:				stores the number of level 4 concluded experimental trials
+/count_exp5:				stores the number of level 5 concluded experimental trials
+/count_ctrl1:				stores the number of level 1 concluded control trials
+/count_ctrl2:				stores the number of level 1 concluded control trials
+/count_ctrl3:				stores the number of level 1 concluded control trials
+/count_ctrl4:				stores the number of level 1 concluded control trials
+/count_ctrl5:				stores the number of level 1 concluded control trials
+
+<values>
+/ ACC = 0
+/ error = 0
+/ rt = 0
+/ RT_complete = 0
+/ counttrials_training = 0
+/ correct_training = 0
+
+/ meanRT_complete1 = 10000
+/ meanRT_complete2 = 10000
+/ meanRT_complete3 = 10000
+/ meanRT_complete4 = 10000
+/ meanRT_complete5 = 10000
+
+/ count_exp1 = 0
+/ count_exp2 = 0
+/ count_exp3 = 0
+/ count_exp4 = 0
+/ count_exp5 = 0
+/ count_ctrl1 = 0
+/ count_ctrl2 = 0
+/ count_ctrl3 = 0
+/ count_ctrl4 = 0
+/ count_ctrl5 = 0
+
+/order = ""
+</values>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EXPRESSIONS
+**************************************************************************************************************
+**************************************************************************************************************
+/meanRT_complete:						calculates the mean response latency in ms of the training trials in the current block
+/progressbar:							calculates the proportion for the progressbar that needs to be green
+/currenttimeout_experimental:			calculates the trial sequence timeout for the next trial sequence in the current experimental block
+/percentcorrect_exp:					percent correct of experimental trials across levels
+/percentcorrect_exp_present:			helper expression to calculate the position of the performance triangle for 100% correct performance
+											(Note: the performance bar uses 100% of the canvas height; the triangle pointing at 100% would be cut off)
+/meanrt_exp:							mean correct response latency in ms of experimental trials across levels
+/percentcorrect_exp1:					percent correct of level 1 experimental trials
+/percentcorrect_exp2:					percent correct of level 2 experimental trials
+/percentcorrect_exp3:					percent correct of level 3 experimental trials
+/percentcorrect_exp4:					percent correct of level 4 experimental trials
+/percentcorrect_exp5:					percent correct of level 5 experimental trials
+/meanrt_exp1:							mean correct response latency in ms of level 1 experimental trials
+/meanrt_exp2:							mean correct response latency in ms of level 1 experimental trials
+/meanrt_exp3:							mean correct response latency in ms of level 1 experimental trials
+/meanrt_exp4:							mean correct response latency in ms of level 1 experimental trials
+/meanrt_exp5:							mean correct response latency in ms of level 1 experimental trials
+
+/percentcorrect_ctrl:					percent correct of control trials across levels
+/meanrt_ctrl:							mean correct response latency in ms of control trials across levels
+/percentcorrect_ctrl1:					percent correct of level 1 control trials
+/percentcorrect_ctrl2:					percent correct of level 2 control trials
+/percentcorrect_ctrl3:					percent correct of level 3 control trials
+/percentcorrect_ctrl4:					percent correct of level 4 control trials
+/percentcorrect_ctrl5:					percent correct of level 5 control trials
+/meanrt_ctrl1:							mean correct response latency in ms of level 1 control trials
+/meanrt_ctrl2:							mean correct response latency in ms of level 1 control trials
+/meanrt_ctrl3:							mean correct response latency in ms of level 1 control trials
+/meanrt_ctrl4:							mean correct response latency in ms of level 1 control trials
+/meanrt_ctrl5:							mean correct response latency in ms of level 1 control trials
+
+<expressions >
+/ meanRT_complete = list.trainingRT.mean
+/ currenttimeout_experimental = if (values.increasetimeout == 1) 1.1*values.currenttimeout_experimental
+						else if (values.decreasetimeout == 1) 0.9*values.currentmeanRT
+						else values.currenttimeout_experimental
+
+/ percentcorrect_exp = 100 * (1 - list.Error_exp.mean)
+/ percentcorrect_exp_present = if (expressions.percentcorrect_exp >= 100) 98% else 1% * expressions.percentcorrect_exp
+/ meanrt_exp = list.RT_exp.mean
+/ percentcorrect_exp1 = 100 * (1- list.Error_exp1.mean)
+/ percentcorrect_exp2 = 100 * (1- list.Error_exp2.mean)
+/ percentcorrect_exp3 = 100 * (1- list.Error_exp3.mean)
+/ percentcorrect_exp4 = 100 * (1- list.Error_exp4.mean)
+/ percentcorrect_exp5 = 100 * (1- list.Error_exp5.mean)
+/ meanrt_exp1 = list.RT_exp1.mean
+/ meanrt_exp2 = list.RT_exp2.mean
+/ meanrt_exp3 = list.RT_exp3.mean
+/ meanrt_exp4 = list.RT_exp4.mean
+/ meanrt_exp5 = list.RT_exp5.mean
+
+/ percentcorrect_ctrl = 100 * (1 - list.Error_ctrl.mean)
+/ meanrt_ctrl = list.RT_ctrl.mean
+/ percentcorrect_ctrl1 = 100 * (1- list.Error_ctrl1.mean)
+/ percentcorrect_ctrl2 = 100 * (1- list.Error_ctrl2.mean)
+/ percentcorrect_ctrl3 = 100 * (1- list.Error_ctrl3.mean)
+/ percentcorrect_ctrl4 = 100 * (1- list.Error_ctrl4.mean)
+/ percentcorrect_ctrl5 = 100 * (1- list.Error_ctrl5.mean)
+/ meanrt_ctrl1 = list.RT_ctrl1.mean
+/ meanrt_ctrl2 = list.RT_ctrl2.mean
+/ meanrt_ctrl3 = list.RT_ctrl3.mean
+/ meanrt_ctrl4 = list.RT_ctrl4.mean
+/ meanrt_ctrl5 = list.RT_ctrl5.mean
+
+
+/ mean_last3errors = (list.last3experimentaltrials_errors.item(1) + list.last3experimentaltrials_errors.item(2) + list.last3experimentaltrials_errors.item(3))/3
+/ meanrt_last3rt = (list.last3experimentaltrials_rt.item(1) + list.last3experimentaltrials_rt.item(2) + list.last3experimentaltrials_rt.item(3))/3
+</expressions>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	INSTRUCTIONS
+**************************************************************************************************************
+**************************************************************************************************************
+
+<picture setup>
+/ items = setups
+/ select = values.condition
+/ size = (35%, 35%)
+/ position = (50%, 40%)
+</picture>
+
+<text trainingtitle>
+/ items = ("Training")
+/ fontstyle = ("Arial", 4%, true, false, false, false, 5, 1)
+/ txcolor = black
+/ position = (50%, 8%)
+/ vjustify = center
+/ hjustify = center
+</text>
+
+<text traininginstructions>
+/ items = traininginstructions
+/ select = sequence
+/ fontstyle = ("Arial", 2.5%, true, false, false, false, 5, 1)
+/ txcolor = black
+/ position = (50%, 50%)
+/ vjustify = center
+/ hjustify = left
+/ size = (90%, 90%)
+/ txbgcolor = darkseagreen
+</text>
+
+<trial traininginstructions>
+/ stimulusframes = [1 = eraser, traininginstructions, trainingtitle, setup, readtimer]
+/ trialduration = parameters.readduration
+/ recorddata = true
+</trial>
+
+<trial traininginstructions2>
+/ stimulusframes = [1 = eraser, traininginstructions, trainingtitle, readtimer]
+/ trialduration = parameters.readduration
+/ recorddata = true
+</trial>
+
+<text Wait>
+/ items = ("Please Wait")
+/ fontstyle = ("Arial", 10%, true, false, false, false, 5, 1)
+/ txcolor = black
+/ position = (50%, 50%)
+/ vjustify = center
+/ hjustify = center
+</text>
+
+<text welcome>
+/ items = ("Welcome")
+/ fontstyle = ("Arial", 10%, true, false, false, false, 5, 1)
+/ txcolor = black
+/ position = (50%, 50%)
+/ vjustify = center
+/ hjustify = center
+</text>
+
+<trial welcome>
+/ inputdevice = mouse
+/ validresponse = (mbuttondown)
+/ ontrialbegin = [values.condition = 2]
+/ stimulusframes = [1 = eraser, welcome]
+/ recorddata = true
+</trial>
+
+<text testtitle>
+/ items = ("Test")
+/ fontstyle = ("Arial", 4%, true, false, false, false, 5, 1)
+/ txcolor = black
+/ position = (50%, 8%)
+/ vjustify = center
+/ hjustify = center
+</text>
+
+<text experimentalinstructions>
+/ items = experimentalinstructions
+/ select = sequence
+/ fontstyle = ("Arial", 2.5%, true, false, false, false, 5, 1)
+/ txcolor = black
+/ position = (50%, 50%)
+/ vjustify = center
+/ hjustify = left
+/ size = (90%, 90%)
+/ txbgcolor = darkseagreen
+</text>
+
+<trial wait>
+/ ontrialbegin = [values.condition = 2]
+/ stimulusframes = [1 = eraser, wait]
+/ trialduration = parameters.readduration
+/ recorddata = true
+</trial>
+
+<trial experimentalinstructions>
+/ ontrialbegin = [values.condition = 2]
+/ stimulusframes = [1 = eraser, experimentalinstructions, testtitle, setup]
+/ trialduration = parameters.readduration
+/ recorddata = true
+</trial>
+
+<text controltitle>
+/ items = ("Control")
+/ fontstyle = ("Arial", 4%, true, false, false, false, 5, 1)
+/ txcolor = black
+/ position = (50%, 8%)
+/ vjustify = center
+/ hjustify = center
+</text>
+
+<text controlinstructions>
+/ items = controlinstructions
+/ select = sequence
+/ fontstyle = ("Arial", 2.5%, true, false, false, false, 5, 1)
+/ txcolor = black
+/ position = (50%, 50%)
+/ vjustify = center
+/ hjustify = left
+/ size = (90%, 90%)
+/ txbgcolor = darkslategray
+</text>
+
+<trial controlinstructions>
+/ ontrialbegin = [values.condition = 3]
+/ stimulusframes = [1 = eraser, controlinstructions, controltitle, setup]
+/ trialduration = parameters.readduration
+/ recorddata = true
+</trial>
+
+<text resttitle>
+/ items = ("Rest Condition")
+/ fontstyle = ("Arial", 4%, true, false, false, false, 5, 1)
+/ txcolor = black
+/ position = (50%, 8%)
+/ vjustify = center
+/ hjustify = center
+</text>
+
+<text restinstructions>
+/ items = restinstructions
+/ select = sequence
+/ fontstyle = ("Arial", 4%, true, false, false, false, 5, 1)
+/ txcolor = black
+/ position = (50%, 50%)
+/ vjustify = center
+/ hjustify = left
+/ size = (90%, 90%)
+/ txbgcolor = cadetblue
+</text>
+
+<trial restinstructions>
+/ ontrialbegin = [values.condition = 4]
+/ stimulusframes = [1 = eraser, restinstructions, resttitle, readtimer]
+/ trialduration = parameters.readduration
+/ recorddata = true
+</trial>
+
+<text relaxtitle>
+/ items = ("Relax Condition")
+/ fontstyle = ("Arial", 4%, true, false, false, false, 5, 1)
+/ txcolor = black
+/ position = (50%, 8%)
+/ vjustify = center
+/ hjustify = center
+</text>
+
+<text relaxinstructions>
+/ items = restinstructions
+/ select = sequence
+/ fontstyle = ("Arial", 4%, true, false, false, false, 5, 1)
+/ txcolor = black
+/ position = (50%, 50%)
+/ vjustify = center
+/ hjustify = left
+/ size = (90%, 90%)
+/ txbgcolor = cadetblue
+</text>
+
+<trial relaxinstructions>
+/ ontrialbegin = [values.condition = 5]
+/ stimulusframes = [1 = eraser, relaxinstructions, relaxtitle, readtimer]
+/ trialduration = parameters.readduration
+/ recorddata = true
+</trial>
+
+<text endtitle>
+/ items = ("END of Experiment")
+/ fontstyle = ("Arial", 4%, true, false, false, false, 5, 1)
+/ txcolor = black
+/ position = (50%, 8%)
+/ vjustify = center
+/ hjustify = center
+</text>
+
+<text endinstructions>
+/ items = endinstructions
+/ select = sequence
+/ fontstyle = ("Arial", 8%, true, false, false, false, 5, 1)
+/ txcolor = black
+/ position = (50%, 50%)
+/ vjustify = center
+/ hjustify = left
+/ txbgcolor = chocolate
+</text>
+
+<trial endinstructions>
+/ ontrialbegin = [values.condition = 6]
+/ stimulusframes = [1 = eraser, endinstructions, endtitle]
+/ trialduration = parameters.endduration
+/ recorddata = true
+</trial>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	STIMULI
+**************************************************************************************************************
+**************************************************************************************************************
+
+<sound beep>
+/ items = ("beep.wav")
+</sound>
+
+<shape eraser>
+/ shape = rectangle
+/ color = gray
+/ size = (100%, 100%)
+/ erase = false
+/ position = (50%, 50%)
+</shape>
+
+
+<text feedback_empty>
+/ items = feedback
+/ select = 1
+/ size = (70%, 20%)
+/ fontstyle = ("Arial", 10%, false, false, false, false, 5, 1)
+/ txcolor = black
+/ txbgcolor = white
+/ position = (20%, 70%)
+/ erase = false
+/ vjustify = center
+</text>
+
+<text feedback_correct>
+/ items = feedback
+/ select = 2
+/ size = (70%, 20%)
+/ fontstyle = ("Arial", 10%, false, false, false, false, 5, 1)
+/ txcolor = green
+/ position = (20%, 70%)
+/ txbgcolor = white
+/ erase = false
+/ vjustify = center
+/ hjustify = center
+/ erase = false
+</text>
+
+<text feedback_error>
+/ items = feedback
+/ select = 3
+/ size = (70%, 20%)
+/ fontstyle = ("Arial", 10%, false, false, false, false, 5, 1)
+/ txcolor = red
+/ position = (20%, 70%)
+/ txbgcolor = white
+/ vjustify = center
+/ hjustify = center
+/ erase = false
+</text>
+
+<text feedback_timeout>
+/ items = feedback
+/ select = 4
+/ size = (70%, 20%)
+/ fontstyle = ("Arial", 10%, false, false, false, false, 5, 1)
+/ txcolor = yellow
+/ txbgcolor = white
+/ position = (20%, 70%)
+/ vjustify = center
+/ hjustify = center
+/ erase = false
+</text>
+
+<text problem>
+/ items = ("<%values.presentedproblem%>")
+/ size = (80%, 12%)
+/ fontstyle = ("Arial", 10%, false, false, false, false, 5, 1)
+/ txbgcolor = white
+/ txcolor = black
+/ position = (50%, 30%)
+/ erase = false
+/ vjustify = center
+</text>
+
+picture dial1>
+/ items = item.dials_1
+/ select = values.selectdial1
+/ size = (8%, 8%)
+/ position = (75%, 50%)
+/ erase = false
+/ transparentcolor = white
+</picture>
+
+<shape dial1>
+/ shape = circle
+/ size = (8%, 8%)
+/ position = (75%, 50%)
+/ color = parameters.inactiveDialButtonColor
+/ erase = false
+</shape>
+
+<text dial1_digit>
+/ items = ("1")
+/ fontstyle = ("Arial", 5%, true, false, false, false, 5, 1)
+/ size = (5%, 6%)
+/ position = (75%, 50%)
+/ txcolor = white
+/ txbgcolor = transparent
+/ erase = false
+</text>
+
+<shape dial2>
+/ shape = circle
+/ size = (8%, 8%)
+/ position = (85%, 55%)
+/ color = parameters.inactiveDialButtonColor
+/ erase = false
+</shape>
+
+<text dial2_digit>
+/ items = ("2")
+/ fontstyle = ("Arial", 5%, true, false, false, false, 5, 1)
+/ size = (5%, 6%)
+/ position = (85%, 55%)
+/ txcolor = white
+/ txbgcolor = transparent
+/ erase = false
+</text>
+
+<shape dial3>
+/ shape = circle
+/ size = (8%, 8%)
+/ position = (90%, 65%)
+/ color = parameters.inactiveDialButtonColor
+/ erase = false
+</shape>
+
+<text dial3_digit>
+/ items = ("3")
+/ fontstyle = ("Arial", 5%, true, false, false, false, 5, 1)
+/ size = (5%, 6%)
+/ position = (90%, 65%)
+/ txcolor = white
+/ txbgcolor = transparent
+/ erase = false
+</text>
+
+<shape dial4>
+/ shape = circle
+/ size = (8%, 8%)
+/ position = (90%, 75%)
+/ color = parameters.inactiveDialButtonColor
+/ erase = false
+</shape>
+
+<text dial4_digit>
+/ items = ("4")
+/ fontstyle = ("Arial", 5%, true, false, false, false, 5, 1)
+/ size = (5%, 6%)
+/ position = (90%, 75%)
+/ txcolor = white
+/ txbgcolor = transparent
+/ erase = false
+</text>
+
+<shape dial5>
+/ shape = circle
+/ size = (8%, 8%)
+/ position = (85%, 85%)
+/ color = parameters.inactiveDialButtonColor
+/ erase = false
+</shape>
+
+<text dial5_digit>
+/ items = ("5")
+/ fontstyle = ("Arial", 5%, true, false, false, false, 5, 1)
+/ size = (5%, 6%)
+/ position = (85%, 85%)
+/ txcolor = white
+/ txbgcolor = transparent
+/ erase = false
+</text>
+
+<shape dial6>
+/ shape = circle
+/ size = (8%, 8%)
+/ position = (75%, 90%)
+/ color = parameters.inactiveDialButtonColor
+/ erase = false
+</shape>
+
+<text dial6_digit>
+/ items = ("6")
+/ fontstyle = ("Arial", 5%, true, false, false, false, 5, 1)
+/ size = (5%, 6%)
+/ position = (75%, 90%)
+/ txcolor = white
+/ txbgcolor = transparent
+/ erase = false
+</text>
+
+<shape dial7>
+/ shape = circle
+/ size = (8%, 8%)
+/ position = (65%, 85%)
+/ color = parameters.inactiveDialButtonColor
+/ erase = false
+</shape>
+
+<text dial7_digit>
+/ items = ("7")
+/ fontstyle = ("Arial", 5%, true, false, false, false, 5, 1)
+/ size = (5%, 6%)
+/ position = (65%, 85%)
+/ txcolor = white
+/ txbgcolor = transparent
+/ erase = false
+</text>
+
+<shape dial8>
+/ shape = circle
+/ size = (8%, 8%)
+/ position = (60%, 75%)
+/ color = parameters.inactiveDialButtonColor
+/ erase = false
+</shape>
+
+<text dial8_digit>
+/ items = ("8")
+/ fontstyle = ("Arial", 5%, true, false, false, false, 5, 1)
+/ size = (5%, 6%)
+/ position = (60%, 75%)
+/ txcolor = white
+/ txbgcolor = transparent
+/ erase = false
+</text>
+
+<shape dial9>
+/ shape = circle
+/ size = (8%, 8%)
+/ position = (60%, 65%)
+/ color = parameters.inactiveDialButtonColor
+/ erase = false
+</shape>
+
+<text dial9_digit>
+/ items = ("9")
+/ fontstyle = ("Arial", 5%, true, false, false, false, 5, 1)
+/ size = (5%, 6%)
+/ position = (60%, 65%)
+/ txcolor = white
+/ txbgcolor = transparent
+/ erase = false
+</text>
+
+<shape dial0>
+/ shape = circle
+/ size = (8%, 8%)
+/ position = (65%, 55%)
+/ color = parameters.inactiveDialButtonColor
+/ erase = false
+</shape>
+
+<text dial0_digit>
+/ items = ("0")
+/ fontstyle = ("Arial", 5%, true, false, false, false, 5, 1)
+/ size = (5%, 6%)
+/ position = (65%, 55%)
+/ txcolor = white
+/ txbgcolor = transparent
+/ erase = false
+</text>
+
+<shape performancebar_green>
+/ shape = rectangle
+/ color = green
+/ size = (100%, 2.5%)
+/ position = (0%, 10%)
+/ erase = false
+/ halign = left
+/ valign = top
+</shape>
+
+<shape performancebar_white>
+/ shape = rectangle
+/ color = white
+/ size = (parameters.whiteperformance, 2.5%)
+/ position = (0%, 10%)
+/ erase = false
+/ halign = left
+/ valign = top
+</shape>
+
+<shape performancebar_red>
+/ shape = rectangle
+/ color = red
+/ size = (parameters.redperformance, 2.5%)
+/ position = (0%, 10%)
+/ erase = false
+/ halign = left
+/ valign = top
+</shape>
+
+<picture subjectperformanceindicator>
+/ items = ("subjectperformanceindicator.jpg")
+/ size = (3%, 3%)
+/ transparentcolor = white
+/ hposition = expressions.percentcorrect_exp_present
+/ vposition = 15%
+/ halign = left
+/ valign = top
+/ erase = false
+</picture>
+
+<picture averageperformanceindicator>
+/ items = ("averageperformanceindicator.jpg")
+/ size = (3%, 3%)
+/ transparentcolor = white
+/ hposition = parameters.averageperformance
+/ vposition = 5%
+/ halign = left
+/ valign = top
+/ erase = false
+</picture>
+
+<shape subjectperformanceindicator_eraser>
+/ shape = rectangle
+/ size = (100%, 4.5%)
+/ hposition = 0%
+/ vposition = 14%
+/ halign = left
+/ valign = top
+/ erase = false
+/ color = gray
+</shape>
+
+
+<clock timer>
+/ mode = timer
+/ resetrate = block
+/ erase = false
+/ txcolor = yellow
+/ txbgcolor = black
+/ timeout = values.clocktimeout
+/ position = (50%, 45%)
+/ format = "mm:ss"
+/ size = (25%, 5%)
+</clock>
+
+<clock readtimer>
+/ mode = timer
+/ resetrate = block
+/ erase = false
+/ txcolor = yellow
+/ timeout = parameters.readduration
+/ position = (90%, 10%)
+/ format = "mm:ss"
+/ size = (25%, 5%)
+</clock>
+
+<clock resttimer>
+/ mode = timer
+/ resetrate = block
+/ erase = false
+/ txcolor = yellow
+/ timeout = parameters.restduration
+/ position = (90%, 10%)
+/ format = "mm:ss"
+/ size = (25%, 5%)
+</clock>
+
+<clock relaxtimer>
+/ mode = timer
+/ resetrate = block
+/ erase = false
+/ txcolor = yellow
+/ timeout = parameters.relaxduration
+/ position = (90%, 10%)
+/ format = "mm:ss"
+/ size = (25%, 5%)
+</clock>
+
+<text blockfeedback>
+/ items = ("Your average performance is:
+<%expressions.percentcorrect_exp%>% correct
+
+The average performance is:
+80%-90% correct")
+/ fontstyle = ("Arial", 5%, true, false, false, false, 5, 1)
+/ txcolor = black
+/ position = (50%, 50%)
+/ vjustify = center
+/ hjustify = center
+/ size = (90%, 90%)
+</text>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	LISTS	
+**************************************************************************************************************
+**************************************************************************************************************
+
+************************************
+Data Lists
+************************************
+
+stores all response latencies of training
+<list trainingRT>
+</list>
+
+stores all correct response latencies for experimental trials
+<list RT_exp>
+</list>
+
+stores all correct response latencies for level 1 experimental trials
+<list RT_exp1>
+</list>
+
+stores all correct response latencies for level 2 experimental trials
+<list RT_exp2>
+</list>
+
+stores all correct response latencies for level 3 experimental trials
+<list RT_exp3>
+</list>
+
+stores all correct response latencies for level 4 experimental trials
+<list RT_exp4>
+</list>
+
+stores all correct response latencies for level 5 experimental trials
+<list RT_exp5>
+</list>
+
+stores all correct response latencies for control trials
+<list RT_ctrl>
+</list>
+
+stores all correct response latencies for level 1 control trials
+<list RT_ctrl1>
+</list>
+
+stores all correct response latencies for level 2 control trials
+<list RT_ctrl2>
+</list>
+
+stores all correct response latencies for level 3 control trials
+<list RT_ctrl3>
+</list>
+
+stores all correct response latencies for level 4 control trials
+<list RT_ctrl4>
+</list>
+
+stores all correct response latencies for level 5 control trials
+<list RT_ctrl5>
+</list>
+
+stores accuracy responses to all experimental trials
+1 = error
+0 = correct
+<list Error_exp>
+</list>
+
+stores accuracy responses to all level 1 experimental trials
+1 = error
+0 = correct
+<list Error_exp1>
+</list>
+
+stores accuracy responses to all level 2 experimental trials
+1 = error
+0 = correct
+<list Error_exp2>
+</list>
+
+stores accuracy responses to all level 3 experimental trials
+1 = error
+0 = correct
+<list Error_exp3>
+</list>
+
+stores accuracy responses to all level 4 experimental trials
+1 = error
+0 = correct
+<list Error_exp4>
+</list>
+
+stores accuracy responses to all level 5 experimental trials
+1 = error
+0 = correct
+<list Error_exp5>
+</list>
+
+stores accuracy responses to all control trials
+1 = error
+0 = correct
+<list Error_ctrl>
+</list>
+
+stores accuracy responses to all level 1 control trials
+1 = error
+0 = correct
+<list Error_ctrl1>
+</list>
+
+stores accuracy responses to all level 1 control trials
+1 = error
+0 = correct
+<list Error_ctrl2>
+</list>
+
+stores accuracy responses to all level 1 control trials
+1 = error
+0 = correct
+<list Error_ctrl3>
+</list>
+
+stores accuracy responses to all level 1 control trials
+1 = error
+0 = correct
+<list Error_ctrl4>
+</list>
+
+stores accuracy responses to all level 1 control trials
+1 = error
+0 = correct
+<list Error_ctrl5>
+</list>
+
+stores the latencies (of correct and incorrect responses) of the last 3 experimental trials
+<list last3experimentaltrials_rt>
+</list>
+
+stores the errors of the response of the last 3 experimental trials
+e.g. 1, 0, 1  => error, correct, error
+<list last3experimentaltrials_errors>
+</list>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	TRIALS: TRAINING
+**************************************************************************************************************
+**************************************************************************************************************
+
+************************************
+Demo
+************************************
+<trial demo_start>
+/ ontrialbegin = [values.level = 1]
+/ ontrialbegin = [values.problem = list.level1.nextvalue]
+/ ontrialbegin = [
+	values.presentedproblem = concat(values.problem, "= ?");
+	values.solution = evaluate(values.problem)
+]
+/ ontrialbegin = [
+	values.ACC = 0;
+	values.rt = 0
+]
+/ trialduration = 0
+/ branch = [trial.demo_M]
+/ recorddata = false
+</trial>
+
+
+<trial demo_M>
+/ inputdevice = mouse
+/ stimulusframes = [1 = problem, feedback_empty, dial1, dial1_digit, dial2, dial2_digit, dial3, dial3_digit, dial4, dial4_digit, dial5, dial5_digit, dial6, dial6_digit, dial7, dial7_digit, dial8, dial8_digit, dial9, dial9_digit, dial0, dial0_digit]
+/ beginresponsetime = -1
+/ validresponse = (lbuttonup, rbuttonup, mbuttondown)
+/ ontrialend = [
+	shape.dial1.color = parameters.inactiveDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+
+	if (trial.demo_M.response == "lbuttonup") {
+		values.dialposition -= 1;
+	} else if (trial.demo_M.response == "rbuttonup") {
+		values.dialposition += 1;
+	};
+	if (values.dialposition == -1) {
+		values.dialposition = 9;
+	};
+	if (values.dialposition == 10) {
+		values.dialposition = 0
+	};
+	
+	if (values.dialposition == 0)
+		shape.dial0.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 1)
+		shape.dial1.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 2)
+		shape.dial2.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 3)
+		shape.dial3.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 4)
+		shape.dial4.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 5)
+		shape.dial5.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 6)
+		shape.dial6.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 7)
+		shape.dial7.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 8)
+		shape.dial8.color = parameters.activeDialButtonColor;
+	else
+		shape.dial9.color = parameters.activeDialButtonColor;;
+	if (trial.demo_M.response=="mbuttondown" && values.dialposition == values.solution) {
+		values.ACC = 1;
+	}
+]
+/ branch = [
+	if (trial.demo_M.response == "lbuttonup" || trial.demo_M.response == "rbuttonup")
+		trial.demo_M;
+	else
+		trial.demofeedback;
+]
+/ recorddata = false
+</trial>
+
+
+<trial demofeedback>
+/ ontrialbegin = [
+	if (values.ACC == 1)
+		trial.demofeedback.insertstimulusframe(text.feedback_correct, 1)
+]
+/ ontrialbegin = [
+	if (values.ACC == 0)
+		trial.demofeedback.insertstimulusframe(text.feedback_error, 1)
+]
+/ ontrialend = [trial.demofeedback.resetstimulusframes()]
+/ timeout = parameters.feedbackduration
+/ recorddata = true
+</trial>
+
+
+
+************************************
+Level 1-5
+************************************
+
+<trial training_start>
+/ ontrialbegin = [
+	if (values.level == 1)
+		values.problem = list.level1.nextvalue
+	else if (values.level == 2)
+		values.problem = list.level2.nextvalue
+	else if (values.level == 3)
+		values.problem = list.level3.nextvalue
+	else if (values.level == 4)
+		values.problem = list.level4.nextvalue
+	else
+		values.problem = list.level5.nextvalue;
+		
+	values.presentedproblem = concat(values.problem, "= ?");
+	values.solution = evaluate(values.problem);
+	values.ACC = 0;
+	values.rt = 0;
+	values.RT_complete = 0;
+]
+/ trialduration = 0
+/ branch = [trial.training_M]
+/ recorddata = false
+</trial>
+
+
+Note: uses Mouse input
+<trial training_M>
+/ inputdevice = mouse
+/ stimulusframes = [1 = problem, feedback_empty, dial1, dial1_digit, dial2, dial2_digit, dial3, dial3_digit, dial4, dial4_digit, dial5, dial5_digit, dial6, dial6_digit, dial7, dial7_digit, dial8, dial8_digit, dial9, dial9_digit, dial0, dial0_digit]
+/ beginresponsetime = -1
+/ validresponse = (lbuttonup, rbuttonup, mbuttondown)
+/ ontrialend = [
+	shape.dial1.color = parameters.inactiveDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	if (trial.training_M.response == "lbuttonup") {
+		values.dialposition -= 1;
+	} else if (trial.training_M.response == "rbuttonup") {
+		values.dialposition += 1;
+	};
+	if (values.dialposition == -1) {
+		values.dialposition = 9;
+	};
+	if (values.dialposition == 10) {
+		values.dialposition = 0
+	};
+	if (values.dialposition == 0)
+		shape.dial0.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 1){
+		shape.dial1.color = parameters.activeDialButtonColor;;
+	}
+
+	else if (values.dialposition == 2)
+		shape.dial2.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 3)
+		shape.dial3.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 4)
+		shape.dial4.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 5)
+		shape.dial5.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 6)
+		shape.dial6.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 7)
+		shape.dial7.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 8)
+		shape.dial8.color = parameters.activeDialButtonColor;
+	else
+		shape.dial9.color = parameters.activeDialButtonColor;;
+	values.rt = trial.training_M.latency;
+	values.RT_complete += values.rt;
+	
+	if (trial.training_M.response=="mbuttondown") {
+		if (values.dialposition == values.solution) {
+			values.ACC = 1;
+			values.error = 0;
+		} else {
+			values.ACC = 2;
+			values.error = 2;
+		}
+	};
+]
+/ branch = [
+	if (trial.training_M.response == "lbuttonup" || trial.training_M.response == "rbuttonup")
+		trial.training_M;
+	else {
+		values.counttrials_training += 1;
+		trial.trainingfeedback;
+	}
+]	
+/ recorddata = false
+</trial>
+
+
+<trial trainingfeedback>
+/ ontrialbegin = [
+	list.trainingRT.insertitem(values.RT_complete, 1);
+	if (values.ACC == 1)
+		trial.trainingfeedback.insertstimulusframe(text.feedback_correct, 1);
+	if (values.ACC != 1)
+		trial.trainingfeedback.insertstimulusframe(text.feedback_error, 1);
+]
+/ ontrialend = [trial.trainingfeedback.resetstimulusframes()]
+/ timeout = parameters.feedbackduration
+/ branch = [trial.training_start]
+/ recorddata = true
+</trial>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	TRIALS: experimental
+**************************************************************************************************************
+**************************************************************************************************************
+
+************************************
+Level 1-5
+************************************
+
+Note: trial.experimental_start
+* selects the next problem depending on level; determines its solution; and adds '=?' to the problem
+* resets several values
+* sets the starting trialtimeout
+* calls trial.experimental_K
+
+<trial experimental_start>
+/ ontrialbegin = [
+	if (values.level == 1) {
+		values.problem = list.level1.nextvalue;
+	} else if (values.level == 2) {
+		values.problem = list.level2.nextvalue;
+	} else if (values.level == 3) {
+		values.problem = list.level3.nextvalue;
+	} else if (values.level == 4) {
+		values.problem = list.level4.nextvalue;
+	} else {
+		values.problem = list.level5.nextvalue;
+	}
+	values.presentedproblem = concat(values.problem, "= ?");
+	values.solution = evaluate(values.problem);
+	values.ACC = 0;
+	values.error = 1;
+	values.RT_complete = 0;
+	values.increasetimeout = 0;
+	values.decreasetimeout = 0;
+	values.trialtimeout = values.currenttimeout_experimental;
+	clock.timer.resettime();
+	values.clocktimeout = values.currenttimeout_experimental;
+]
+/ stimulusframes = [1 = problem, performancebar_green, performancebar_white, performancebar_red, averageperformanceindicator, subjectperformanceindicator_eraser,
+subjectperformanceindicator, timer, feedback_empty, dial1, dial1_digit, dial2, dial2_digit, dial3, dial3_digit, dial4, dial4_digit, dial5, dial5_digit, dial6, dial6_digit, dial7, dial7_digit, dial8, dial8_digit, dial9, dial9_digit, dial0, dial0_digit]
+/ trialduration = 0
+/ branch = [trial.experimental_M]
+/ recorddata = false
+</trial>
+
+Note:
+* takes mouse input
+* presents the problem, the performance bar, the timer, the dials (with a currently highlighted dial)
+* waits for input or timeout
+=> if new dial position is selected: determine which dial position to highlight
+=> if solution was submitted: determine the accuracy of the response (if timeout -> values.ACC = 0; values.error -> 1)
+* the individual trial response latency is added to the cumulative response time for the problem
+* the trial timeout is adjusted by subtracting the individual trial response latency
+* if new dial position was selected: calls itself again; otherwise calls trial.experimental_feedback
+
+<trial experimental_M>
+/ inputdevice = mouse
+/ stimulusframes = [1 = problem, performancebar_green, performancebar_white, performancebar_red, averageperformanceindicator, 
+subjectperformanceindicator, feedback_empty, 
+dial1, dial1_digit, dial2, dial2_digit, dial3, dial3_digit, dial4, dial4_digit,
+dial5, dial5_digit, dial6, dial6_digit, dial7, dial7_digit, dial8, dial8_digit, dial9, dial9_digit, dial0, dial0_digit, timer]
+/ beginresponsetime = -1
+/ validresponse = (lbuttonup, rbuttonup, mbuttondown)
+/ responseinterrupt = immediate
+/ ontrialend = [
+	shape.dial1.color = parameters.inactiveDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	if (trial.experimental_M.response == "lbuttonup") {
+		values.dialposition -= 1;
+	} else if (trial.experimental_M.response == "rbuttonup") {
+		values.dialposition += 1;
+	};
+	
+	if (values.dialposition == -1) {
+		values.dialposition = 9;
+	};
+	
+	if (values.dialposition == 10) {
+		values.dialposition = 0
+	};
+	
+	if (values.dialposition == 0)
+		shape.dial0.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 1)
+		shape.dial1.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 2)
+		shape.dial2.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 3)
+		shape.dial3.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 4)
+		shape.dial4.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 5)
+		shape.dial5.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 6)
+		shape.dial6.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 7)
+		shape.dial7.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 8)
+		shape.dial8.color = parameters.activeDialButtonColor;
+	else
+		shape.dial9.color = parameters.activeDialButtonColor;;
+		
+	if (trial.experimental_M.response=="mbuttondown") {
+		if (values.dialposition == values.solution) {
+			values.ACC = 1;
+			values.error = 0;
+		} else {
+			values.ACC = 2;
+		}
+	};
+	values.rt = trial.experimental_M.latency;
+	values.RT_complete += values.rt;
+	values.trialtimeout -= values.rt;
+]
+/ branch = [
+	if (trial.experimental_M.response == "lbuttonup" || trial.experimental_M.response == "rbuttonup")
+		trial.experimental_M;
+	else
+		trial.experimentalfeedback;
+]		
+/ timeout = values.trialtimeout
+/ recorddata = false
+</trial>
+
+
+Note: trial.experimentalfeedback
+* updates data lists for accuracy and correct response latencies at the completion of the trial
+* determines the duration of the current test ITI. The predetermined length of the ITI period (parameters.iti_test) is adjusted 
+by the amount of time that the response took longer/shorter than the training response to the same level problem
+=> if the response was shorter, the iti is presented longer; if the response took longer, the iti is presented shorter
+* determines whether the trial timeout needs to be increased or decreased or should stay the same
+=> if the last three responses were all correct: decrease trialtimeout 
+=> if the last three responses were all incorrect: increase trialtimeout
+* determines the feedback stimuli to present
+* calls the next trial sequence
+* adds the iti
+
+<trial experimentalfeedback>
+/ ontrialbegin = [
+	if (values.ACC == 1) {
+		list.RT_exp.insertitem(values.RT_complete, 1);
+		if (values.level == 1) {
+			list.RT_exp1.insertitem(values.RT_complete, 1);
+		} else if (values.level == 2) {
+			list.RT_exp2.insertitem(values.RT_complete, 1);
+		} else if (values.level == 3) {
+			list.RT_exp3.insertitem(values.RT_complete, 1);
+		} else if (values.level == 4) {
+			list.RT_exp4.insertitem(values.RT_complete, 1);
+		} else if (values.level == 5) {
+			list.RT_exp5.insertitem(values.RT_complete, 1);
+		};
+	};
+	list.Error_exp.insertitem(values.error, 1);
+	if (values.level == 1) {
+		list.Error_exp1.insertitem(values.error, 1);
+		values.adjustedITI = parameters.iti_test + (values.meanRT_complete1 - values.RT_complete);
+	} else if (values.level == 2) {
+		list.Error_exp2.insertitem(values.error, 1);
+		values.adjustedITI = parameters.iti_test + (values.meanRT_complete2 - values.RT_complete);
+	} else if (values.level == 3) {
+		list.Error_exp3.insertitem(values.error, 1);
+		values.adjustedITI = parameters.iti_test + (values.meanRT_complete3 - values.RT_complete);
+	} else if (values.level == 4) {
+		list.Error_exp4.insertitem(values.error, 1);
+		values.adjustedITI = parameters.iti_test + (values.meanRT_complete4 - values.RT_complete);
+	} else if (values.level == 5) {
+		list.Error_exp5.insertitem(values.error, 1);
+		values.adjustedITI = parameters.iti_test + (values.meanRT_complete5 - values.RT_complete);
+	};
+	list.last3experimentaltrials_errors.insertitem(values.error, 1);
+	list.last3experimentaltrials_rt.insertitem(values.RT_complete, 1);
+	if (list.last3experimentaltrials_errors.itemcount >= 3 && expressions.mean_last3errors == 0) {
+		values.increasetimeout = 0;
+		values.decreasetimeout = 1;
+	} else if (list.last3experimentaltrials_errors.itemcount >= 3 && expressions.mean_last3errors == 1) {
+		values.increasetimeout = 1;
+		values.decreasetimeout = 0;
+	} else {
+		values.increasetimeout = 0;
+		values.decreasetimeout = 0;
+	};
+	if (list.last3experimentaltrials_rt.itemcount >=3)
+		values.currentmeanrt = expressions.meanrt_last3rt;
+	values.currenttimeout_experimental = expressions.currenttimeout_experimental;
+	if (values.ACC == 0) {
+		trial.experimentalfeedback.insertstimulusframe(text.feedback_timeout, 1);
+	} else if (values.ACC == 1) {
+		trial.experimentalfeedback.insertstimulusframe(text.feedback_correct, 1);
+	} else if (values.ACC == 2) {
+		trial.experimentalfeedback.insertstimulusframe(text.feedback_error, 1);
+	};
+]
+/ timeout = parameters.feedbackduration
+/ ontrialend = [trial.experimentalfeedback.resetstimulusframes()]
+/ branch = [trial.experimental_start]
+/ recorddata = true
+/ posttrialpause = values.adjustedITI
+</trial>
+/ ontrialbegin = [values.clocktimeout = 0]
+/ stimulusframes = [1 = timer]
+
+Note: trial.blockfeedback
+presents the average performance (%correct) of the participant for the current block
+<trial blockfeedback>
+/ stimulusframes = [1 = blockfeedback]
+/ trialduration = parameters.readduration
+/ recorddata = true
+</trial>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	TRIALS: control
+**************************************************************************************************************
+**************************************************************************************************************
+************************************
+Level 1-5
+************************************
+Note: trial.control_start
+* selects the next problem depending on level; determines its solution; and adds '=?' to the problem
+* resets several values
+* calls trial.control_K
+
+<trial control_start>
+/ ontrialbegin = [
+	if (values.level == 1) {
+		values.problem = list.level1.nextvalue;
+	} else if (values.level == 2) {
+		values.problem = list.level2.nextvalue;
+	} else if (values.level == 3) {
+		values.problem = list.level3.nextvalue;
+	} else if (values.level == 4) {
+		values.problem = list.level4.nextvalue;
+	} else {
+		values.problem = list.level5.nextvalue;
+	}
+	values.presentedproblem = concat(values.problem, "= ?");
+	values.solution = evaluate(values.problem);
+	values.ACC = 0;
+	values.error = 1;
+	values.RT_complete = 0;
+	clock.timer.resettime();
+]
+/ stimulusframes = [1 = problem, feedback_empty, dial1, dial1_digit, dial2, dial2_digit, dial3, dial3_digit, dial4, dial4_digit, dial5, dial5_digit, dial6, dial6_digit, dial7, dial7_digit, dial8, dial8_digit, dial9, dial9_digit, dial0, dial0_digit]
+/ trialduration = 0
+/ branch = [trial.control_M]
+/ recorddata = false
+</trial>
+
+Note:
+* mouse input
+* presents the problem, the performance bar, the timer, the dials (with a currently highlighted dial)
+* waits for input
+=> if new dial position is selected: determine which dial position to highlight
+=> if solution was submitted: determine the accuracy of the response (if timeout -> values.ACC = 0; values.error -> 1)
+* the individual trial response latency is added to the cumulative response time for the problem
+* if new dial position was selected: calls itself again; otherwise calls trial.control_feedback
+
+<trial control_M>
+/ inputdevice = mouse
+/ stimulusframes = [1 = problem, feedback_empty, dial1, dial1_digit, dial2, dial2_digit, dial3, dial3_digit, dial4, dial4_digit, dial5, dial5_digit, dial6, dial6_digit, dial7, dial7_digit, dial8, dial8_digit, dial9, dial9_digit, dial0, dial0_digit]
+/ beginresponsetime = -1
+/ validresponse = (lbuttonup, rbuttonup, mbuttondown)
+/ responseinterrupt = immediate
+/ ontrialend = [
+	shape.dial1.color = parameters.inactiveDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	if (trial.control_M.response == "lbuttonup") {
+		values.dialposition -= 1;
+	} else if (trial.control_M.response == "rbuttonup") {
+		values.dialposition += 1;
+	};
+	if (values.dialposition == -1) {
+		values.dialposition = 9;
+	};
+	if (values.dialposition == 10) {
+		values.dialposition = 0
+	};
+	if (values.dialposition == 0)
+		shape.dial0.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 1)
+		shape.dial1.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 2)
+		shape.dial2.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 3)
+		shape.dial3.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 4)
+		shape.dial4.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 5)
+		shape.dial5.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 6)
+		shape.dial6.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 7)
+		shape.dial7.color = parameters.activeDialButtonColor;
+	else if (values.dialposition == 8)
+		shape.dial8.color = parameters.activeDialButtonColor;
+	else
+		shape.dial9.color = parameters.activeDialButtonColor;;
+	if (trial.control_M.response=="mbuttondown") {
+		if (values.dialposition == values.solution) {
+			values.ACC = 1;
+			values.error = 0;
+		} else {
+			values.ACC = 2;
+		}
+	};
+	values.rt = trial.control_M.latency;
+	values.RT_complete += values.rt;
+]
+
+/ branch = [
+	if (trial.control_M.response == "lbuttonup" || trial.control_M.response == "rbuttonup")
+		trial.control_M;
+	else
+		trial.controlfeedback;
+]
+/ recorddata = false
+</trial>
+
+Note: trial.controlfeedback
+* determines the duration of the current test ITI. The predetermined length of the ITI period (parameters.iti_test) is adjusted 
+by the amount of time that the response took longer/shorter than the training response to the same level problem
+=> if the response was shorter, the iti is presented longer; if the response took longer, the iti is presented shorter
+* determines the feedback stimuli to present
+* calls the next trial sequence
+* adds the iti
+
+<trial controlfeedback>
+/ ontrialbegin = [
+	if (values.ACC == 1) {
+		list.RT_ctrl.insertitem(values.RT_complete, 1);
+		if (values.level == 1) {
+			list.RT_ctrl1.insertitem(values.RT_complete, 1);
+		} else if (values.level == 2) {
+			list.RT_ctrl2.insertitem(values.RT_complete, 1);
+		} else if (values.level == 3) {
+			list.RT_ctrl3.insertitem(values.RT_complete, 1);
+		} else if (values.level == 4) {
+			list.RT_ctrl4.insertitem(values.RT_complete, 1);
+		} else if (values.level == 5) {
+			list.RT_ctrl5.insertitem(values.RT_complete, 1);
+		};
+	};
+	list.Error_ctrl.insertitem(values.error, 1);
+	if (values.level == 1) {
+		list.Error_ctrl1.insertitem(values.error, 1);
+		values.adjustedITI = parameters.iti_test + (values.meanRT_complete1 - values.RT_complete);
+	} else if (values.level == 2) {
+		list.Error_ctrl2.insertitem(values.error, 1);
+		values.adjustedITI = parameters.iti_test + (values.meanRT_complete2 - values.RT_complete);
+	} else if (values.level == 3) {
+		list.Error_ctrl3.insertitem(values.error, 1);
+		values.adjustedITI = parameters.iti_test + (values.meanRT_complete3 - values.RT_complete);
+	} else if (values.level == 4) {
+		list.Error_ctrl4.insertitem(values.error, 1);
+		values.adjustedITI = parameters.iti_test + (values.meanRT_complete4 - values.RT_complete);
+	} else if (values.level == 5) {
+		list.Error_ctrl5.insertitem(values.error, 1);
+		values.adjustedITI = parameters.iti_test + (values.meanRT_complete5 - values.RT_complete);
+	};
+	if (values.ACC == 0)
+		trial.controlfeedback.insertstimulusframe(text.feedback_timeout, 1);
+	else if (values.ACC == 1)
+		trial.controlfeedback.insertstimulusframe(text.feedback_correct, 1);
+	else if (values.ACC == 2)
+		trial.controlfeedback.insertstimulusframe(text.feedback_error, 1);
+]	
+/ ontrialend = [trial.controlfeedback.resetstimulusframes()]
+/ timeout = parameters.feedbackduration
+
+/ branch = [trial.control_start]
+/ recorddata = true
+/ posttrialpause = values.adjustedITI
+</trial>
+
+
+**************************************************************************************************************
+**************************************************************************************************************
+	TRIALS: rest
+**************************************************************************************************************
+**************************************************************************************************************
+
+<trial rest>
+/ trialduration = parameters.restduration
+/ recorddata = true
+</trial>
+
+<trial relax>
+/ stimulustimes = [0 = eraser]
+/ response = timeout(parameters.relaxduration)
+/ responsemessage = (noresponse, beep, 0)
+/ posttrialpause = 500
+/ recorddata = true
+</trial>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	BLOCKS
+**************************************************************************************************************
+**************************************************************************************************************
+
+**************************************
+Training Blocks
+**************************************
+
+<block traininginstructions>
+/ onblockbegin = [
+	shape.dial1.color = parameters.activeDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	values.dialposition = 1;	
+]
+/ trials = [1 = traininginstructions; 2 = demo_start; 3 = traininginstructions2]
+</block>
+
+Training Blocks by level?
+
+no time limit is enforced, and no time progress bar is shown on the screen. In
+addition, no performance indicators (for the subject’s own performance or the average performance of all subjects) are
+displayed.
+<block training1>
+/ onblockbegin = [
+	values.condition = 1;
+	values.level = 1;
+	list.trainingRT.reset();
+]
+/ timeout = parameters.trainingtimeout
+/ onblockbegin = [
+	shape.dial1.color = parameters.activeDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+
+	values.dialposition = 1;	
+	values.correct_training = 0;
+	values.counttrials_training = 0;
+]
+/ trials = [1 = training_start]
+/ onblockend = [
+	if (list.trainingRT.itemcount == 0)
+		values.meanRT_complete1 = 10000;
+	else
+		values.meanRT_complete1 = expressions.meanRT_complete;
+]
+</block>
+
+<block training2>
+/ onblockbegin = [
+	values.condition = 1;
+	values.level = 2;
+	list.trainingRT.reset();
+	shape.dial1.color = parameters.activeDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	values.dialposition = 1;
+	values.correct_training = 0;
+	values.counttrials_training = 0;
+]
+/ timeout = parameters.trainingtimeout
+/ trials = [1 = training_start]
+/ onblockend = [
+	if (list.trainingRT.itemcount == 0)
+		values.meanRT_complete2 = 10000;
+	else
+		values.meanRT_complete2 = expressions.meanRT_complete;
+]
+</block>
+
+<block training3>
+/ onblockbegin = [
+	values.condition = 1;
+	values.level = 3;
+	list.trainingRT.reset();
+	
+	shape.dial1.color = parameters.activeDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	values.dialposition = 1;
+	values.correct_training = 0;
+	values.counttrials_training = 0;
+]
+/ timeout = parameters.trainingtimeout
+/ trials = [1 = training_start]
+/ onblockend = [
+	if (list.trainingRT.itemcount == 0)
+		values.meanRT_complete3 = 10000;
+	else
+		values.meanRT_complete3 = expressions.meanRT_complete;
+]
+</block>
+
+<block training4>
+/ onblockbegin = [
+	values.condition = 1;
+	values.level = 4;
+	list.trainingRT.reset();
+	
+	shape.dial1.color = parameters.activeDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	values.dialposition = 1;
+	values.correct_training = 0;
+	values.counttrials_training = 0;
+]
+/ timeout = parameters.trainingtimeout
+/ trials = [1 = training_start]
+/ onblockend = [
+	if (list.trainingRT.itemcount == 0)
+		values.meanRT_complete4 = 10000;
+	else
+		values.meanRT_complete4 = expressions.meanRT_complete;
+]
+</block>
+
+<block training5>
+/ onblockbegin = [
+	values.condition = 1;
+	values.level = 5;
+	list.trainingRT.reset();
+	
+	shape.dial1.color = parameters.activeDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	values.dialposition = 1;
+	values.correct_training = 0;
+	values.counttrials_training = 0;
+]
+/ timeout = parameters.trainingtimeout
+/ trials = [1 = training_start]
+/ onblockend = [
+	if (list.trainingRT.itemcount == 0)
+		values.meanRT_complete5 = 10000;
+	else
+		values.meanRT_complete5 = expressions.meanRT_complete;
+]
+</block>
+
+
+**************************************
+Experimental Blocks
+**************************************
+
+* presents instructions
+<block experimentalinstructions>
+/ trials = [1-3 = experimentalinstructions]
+</block>
+
+* sets the initial trialtimeout at 10% less than the mean training response times (not corrected for accuracy)
+<block experimental1>
+/ onblockbegin = [
+	values.condition = 2;
+	values.level = 1;
+	list.trainingRT.reset();
+	
+	shape.dial1.color = parameters.activeDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	values.dialposition = 1;
+	values.currentmeanrt = values.meanRT_complete1;
+	values.currenttimeout_experimental = 0.9*values.meanRT_complete1;
+	list.last3experimentaltrials_errors.reset();
+	list.last3experimentaltrials_rt.reset();
+]
+/ timeout = parameters.experimentaltimeout
+/ trials = [1 = experimental_start]
+/ onblockend = [values.count_exp1 = list.Error_exp1.itemcount]
+/ branch = [block.blockfeedback]
+</block>
+
+<block experimental2>
+/ onblockbegin = [
+	values.condition = 2;
+	values.level = 2;
+	list.trainingRT.reset();
+	
+	shape.dial1.color = parameters.activeDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	values.dialposition = 1;
+	values.currentmeanrt = values.meanRT_complete2;
+	values.currenttimeout_experimental = 0.9*values.meanRT_complete2;
+	list.last3experimentaltrials_errors.reset();
+	list.last3experimentaltrials_rt.reset();
+]
+/ timeout = parameters.experimentaltimeout
+/ trials = [1 = experimental_start]
+/ onblockend = [values.count_exp2 = list.Error_exp2.itemcount]
+/ branch = [block.blockfeedback]
+</block>
+
+<block experimental3>
+/ onblockbegin = [
+	values.condition = 2;
+	values.level = 3;
+	list.trainingRT.reset();
+	
+	shape.dial1.color = parameters.activeDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	values.dialposition = 1;
+	values.currentmeanrt = values.meanRT_complete3;
+	values.currenttimeout_experimental = 0.9*values.meanRT_complete3;
+	list.last3experimentaltrials_errors.reset();
+	list.last3experimentaltrials_rt.reset();
+]
+/ timeout = parameters.experimentaltimeout
+/ trials = [1 = experimental_start]
+/ onblockend = [values.count_exp3 = list.Error_exp3.itemcount]
+/ branch = [block.blockfeedback]
+</block>
+
+<block experimental4>
+/ onblockbegin = [
+	values.condition = 2;
+	values.level = 4;
+	list.trainingRT.reset();
+	
+	shape.dial1.color = parameters.activeDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	values.dialposition = 1;
+	values.currentmeanrt = values.meanRT_complete4;
+	values.currenttimeout_experimental = 0.9*values.meanRT_complete4;
+	list.last3experimentaltrials_errors.reset();
+	list.last3experimentaltrials_rt.reset();
+]
+/ timeout = parameters.experimentaltimeout
+/ trials = [1 = experimental_start]
+/ onblockend = [values.count_exp4 = list.Error_exp4.itemcount]
+/ branch = [block.blockfeedback]
+</block>
+
+<block experimental5>
+/ onblockbegin = [
+	values.condition = 2;
+	values.level = 5;
+	list.trainingRT.reset();
+	
+	shape.dial1.color = parameters.activeDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	values.dialposition = 1;
+	values.currentmeanrt = values.meanRT_complete5;
+	values.currenttimeout_experimental = 0.9*values.meanRT_complete5;
+	list.last3experimentaltrials_errors.reset();
+	list.last3experimentaltrials_rt.reset();
+]
+/ timeout = parameters.experimentaltimeout
+/ trials = [1 = experimental_start]
+/ onblockend = [values.count_exp5 = list.Error_exp5.itemcount]
+/ branch = [block.blockfeedback]
+</block>
+
+presents block feedback
+<block blockfeedback>
+/ trials = [1 = blockfeedback]
+/ branch = [block.wait]
+</block>
+
+**************************************
+Control Blocks
+**************************************
+
+<block controlinstructions>
+/ trials = [1-2 = controlinstructions]
+</block>
+
+<block control1>
+/ onblockbegin = [
+	values.condition = 3;
+	values.level = 1;
+	values.increasetimeout = "";
+	values.decreasetimeout = "";
+	
+	shape.dial1.color = parameters.activeDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	values.dialposition = 1;
+]	
+/ timeout = parameters.experimentaltimeout
+/ trials = [1 = control_start]
+/ onblockend = [values.count_ctrl1 = list.Error_ctrl1.itemcount]
+/ branch = [block.wait]
+</block>
+
+<block control2>
+/ onblockbegin = [
+	values.condition = 3;
+	values.level = 2;
+	values.increasetimeout = "";
+	values.decreasetimeout = "";
+	
+	shape.dial1.color = parameters.activeDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	values.dialposition = 1;
+]	
+/ timeout = parameters.experimentaltimeout
+/ trials = [1 = control_start]
+/ onblockend = [values.count_ctrl2 = list.Error_ctrl2.itemcount]
+/ branch = [block.wait]
+</block>
+
+<block control3>
+/ onblockbegin = [
+	values.condition = 3;
+	values.level = 3;
+	values.increasetimeout = "";
+	values.decreasetimeout = "";
+	
+	shape.dial1.color = parameters.activeDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	values.dialposition = 1;
+]	
+/ timeout = parameters.experimentaltimeout
+/ trials = [1 = control_start]
+/ onblockend = [values.count_ctrl3 = list.Error_ctrl3.itemcount]
+/ branch = [block.wait]
+</block>
+
+<block control4>
+/ onblockbegin = [
+	values.condition = 3;
+	values.level = 4;
+	values.increasetimeout = "";
+	values.decreasetimeout = "";
+	
+	shape.dial1.color = parameters.activeDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	values.dialposition = 1;
+]	
+/ timeout = parameters.experimentaltimeout
+/ trials = [1 = control_start]
+/ onblockend = [values.count_ctrl4 = list.Error_ctrl4.itemcount]
+/ branch = [block.wait]
+</block>
+
+<block control5>
+/ onblockbegin = [
+	values.condition = 3;
+	values.level = 5;
+	values.increasetimeout = "";
+	values.decreasetimeout = "";
+	
+	shape.dial1.color = parameters.activeDialButtonColor;
+	shape.dial2.color = parameters.inactiveDialButtonColor;
+	shape.dial3.color = parameters.inactiveDialButtonColor;
+	shape.dial4.color = parameters.inactiveDialButtonColor;
+	shape.dial5.color = parameters.inactiveDialButtonColor;
+	shape.dial6.color = parameters.inactiveDialButtonColor;
+	shape.dial7.color = parameters.inactiveDialButtonColor;
+	shape.dial8.color = parameters.inactiveDialButtonColor;
+	shape.dial9.color = parameters.inactiveDialButtonColor;
+	shape.dial0.color = parameters.inactiveDialButtonColor;
+	
+	values.dialposition = 1;
+]	
+/ timeout = parameters.experimentaltimeout
+/ trials = [1 = control_start]
+/ onblockend = [values.count_ctrl5 = list.Error_ctrl5.itemcount]
+/ branch = [block.wait]
+</block>
+
+**************************************
+Rest Blocks
+**************************************
+
+<block restinstructions>
+/ trials = [1 = restinstructions]
+</block>
+
+<block rest>
+/ trials = [1 = rest]
+</block>
+
+
+**************************************
+Miscelleneous Blocks
+**************************************
+
+Note: block.wait presents a slide that simply asks the participants to wait
+Input is given via the keyboard by experimenters.
+This block can be run whenever the participants should wait for further instructions
+<block wait>
+/ trials = [1 = wait]
+</block>
+
+<block welcome>
+/ trials = [1 = welcome]
+</block>
+
+<block relaxinstructions>
+/ trials = [1 = relaxinstructions]
+</block>
+
+<block relax>
+/ trials = [1 = relax]
+</block>
+
+<block endinstructions>
+/ trials = [1 = endinstructions]
+</block>
+
+**************************************************************************************************************
+**************************************************************************************************************
+	EXPERIMENT 
+**************************************************************************************************************
+**************************************************************************************************************
+Blocks that can be run:
+
+Training: values.condition = 1
+block.traininginstructions
+block.training1
+block.training2
+block.training3
+block.training4
+block.training5
+
+block.wait
+
+Experimental: values.condition = 2
+block.experimentalinstructions
+block.experimental1
+block.experimental2
+block.experimental3
+block.experimental4
+block.experimental5
+
+Control: values.condition = 3
+block.controlinstructions
+block.control1
+block.control2
+block.control3
+block.control4
+block.control5
+
+Rest: values.condition = 4
+block.restinstructions
+block.rest
+
+(all test blocks automatically call block.wait at the end, so that experimenter has a chance to talk to participant)
+
+
+Note: the order of experimental, control and rest conditions is counterbalanced by groupnumber (6 possible orders);
+the difficulty levels are selected in random order for each conditions (levels of difficulty are tested in blocked format)
+
+
+/ onexptbegin = [
+	values.order = "Exp, Ctrl, Rest"
+]
+/ subjects = (1 of 6)
+/ groupassignment = groupnumber
+/ blocks = [
+1 = traininginstructions; 2-6 = noreplace(training1, training2, training3, training4, training5); 7 = wait; 
+8 = experimentalinstructions; 9-13 = noreplace(experimental1, experimental2, experimental3, experimental4, experimental5);
+14 = controlinstructions; 15-19 = noreplace(control1, control2, control3, control4, control5);
+20 = restinstructions; 21 = rest]
+/ onexptend = [values.completed = 1]
+</expt>
+
+/ blocks = [
+1 = traininginstructions; 2-6 = noreplace(training1, training2, training3, training4, training5); 7 = wait; 
+8 = experimentalinstructions; 9-13 = noreplace(experimental1, experimental2, experimental3, experimental4, experimental5)
+14 = controlinstructions; 15-19 = noreplace(control1, control2, control3, control4, control5);
+20 = restinstructions; 21 = rest]
+
+
+/ onexptbegin = [
+	values.order = "Exp, Rest, Ctrl"
+]
+/ subjects = (2 of 6)
+/ groupassignment = groupnumber
+/ blocks = [
+1 = traininginstructions; 2-6 = noreplace(training1, training2, training3, training4, training5); 7 = wait; 
+8 = experimentalinstructions; 9-13 = noreplace(experimental1, experimental2, experimental3, experimental4, experimental5); 
+14 = restinstructions; 15 = rest;
+16 = controlinstructions; 17-21 = noreplace(control1, control2, control3, control4, control5)]
+/ onexptend = [values.completed = 1]
+</expt>
+
+
+/ onexptbegin = [
+	values.order = "Ctrl, Exp, Rest"
+]
+/ subjects = (3 of 6)
+/ groupassignment = groupnumber
+/ blocks = [
+1 = traininginstructions; 2-6 = noreplace(training1, training2, training3, training4, training5); 7 = wait; 
+8 = controlinstructions; 9-13 = noreplace(control1, control2, control3, control4, control5); 
+14 = experimentalinstructions; 15-19 = noreplace(experimental1, experimental2, experimental3, experimental4, experimental5);
+20 = restinstructions; 21 = rest]
+/ onexptend = [values.completed = 1]
+</expt>
+
+
+/ onexptbegin = [
+	values.order = "Ctrl, Rest, Exp, Rest, Ctrl, Relax"
+]
+/ blocks = [
+1 = welcome;
+2 = traininginstructions; 3-4 = noreplace(training1, training2); 
+5 = relaxinstructions; 6 = relax;
+7 = controlinstructions; 8-10 = noreplace(control1, control2, control3); 
+11 = restinstructions; 12 = rest;
+13 = experimentalinstructions; 14-16 = noreplace(experimental1, experimental2, experimental3);
+17 = restinstructions; 18 = rest;
+19 = controlinstructions; 20-22 = noreplace(control1, control2, control3); 
+23 = relaxinstructions; 24 = relax;
+25 = endinstructions;
+]
+/ onexptend = [values.completed = 1]
+</expt>
+
+<expt>
+/ onexptbegin = [
+	values.order = "Ctrl, Rest, Exp, Rest, Ctrl, Relax"
+]
+/ blocks = [
+1 = welcome;
+2 = traininginstructions; 3-4 = noreplace(training1, training2); 
+5 = relaxinstructions; 6 = relax;
+7 = controlinstructions; 8-12 = noreplace(control1, control2, control3, control4, control5); 
+13 = restinstructions; 14 = rest;
+15 = experimentalinstructions; 16-20 = noreplace(experimental1, experimental2, experimental3, experimental4, experimental5);
+21 = restinstructions; 22 = rest;
+23 = controlinstructions; 24-28 = noreplace(control1, control2, control3, control4, control5); 
+29 = relaxinstructions; 30 = relax;
+31 = endinstructions;
+]
+/ onexptend = [values.completed = 1]
+</expt>
+
+
+/ onexptbegin = [
+	values.order = "Rest, Exp, Ctrl"
+]
+/ subjects = (5 of 6)
+/ groupassignment = groupnumber
+/ blocks = [
+1 = traininginstructions; 2-6 = noreplace(training1, training2, training3, training4, training5); 7 = wait; 
+8 = restinstructions; 9 = rest;
+10 = experimentalinstructions; 11-15 = noreplace(experimental1, experimental2, experimental3, experimental4, experimental5); 
+16 = controlinstructions; 17-21 = noreplace(control1, control2, control3, control4, control5)]
+/ onexptend = [values.completed = 1]
+</expt>
+
+
+/ onexptbegin = [
+	values.order = "Rest, Ctrl, Exp"
+]
+/ subjects = (6 of 6)
+/ groupassignment = groupnumber
+/ blocks = [
+1 = traininginstructions; 2-6 = noreplace(training1, training2, training3, training4, training5); 7 = wait; 
+8 = restinstructions; 9 = rest;
+10 = controlinstructions; 11-15 = noreplace(control1, control2, control3, control4, control5); 
+16 = experimentalinstructions; 17-21 = noreplace(experimental1, experimental2, experimental3, experimental4, experimental5)]
+/ onexptend = [values.completed = 1]
+</expt>
+
+
+<monkey>
+/ latencydistribution = normal(500, 50) 
+</monkey>
+
+**************************************************************************************************************
+												End of File
+**************************************************************************************************************

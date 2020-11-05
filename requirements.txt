@@ -1,0 +1,6 @@
+websockets
+flake8
+websocket-client
+plotly
+pandas
+psutil
