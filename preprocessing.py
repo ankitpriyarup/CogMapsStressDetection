@@ -11,6 +11,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 
+UPDATE_GRAPHS = False
 pio.orca.config.executable = 'C:/Users/ankitpriyarup/AppData/Local/Programs/orca/orca.exe'
 pio.orca.config.save()
 duration_training = 3*60 + 2
@@ -158,10 +159,13 @@ def perform(location, subject_name, start_time):
     point7 = (start_time + datetime.timedelta(seconds=duration_rest2)).time()
     point8 = (start_time + datetime.timedelta(seconds=duration_control2)).time()
     point9 = (start_time + datetime.timedelta(seconds=duration_complete)).time()
+    pos = 0
     while line < toLook:
         cur = []
         parsedCurTime = datetime.datetime.strptime(str(time.strftime('%H:%M:%S', time.localtime(curTime))), '%H:%M:%S')
-        if parsedCurTime.time() >= point1 and parsedCurTime.time() <= point9:
+        if (parsedCurTime.time() >= point1 or pos > 0) and pos < 9:
+            if pos == 0:
+                pos = 1
             cur.append(str(time.strftime('%H:%M:%S', time.localtime(curTime))))
             mineda = min(mineda, eda[line][0])
             maxeda = max(maxeda, eda[line][0])
@@ -172,22 +176,25 @@ def perform(location, subject_name, start_time):
             mintemp = min(mintemp, temp[line][0])
             maxtemp = max(maxtemp, temp[line][0])
             cur.append(temp[line][0])
-            if parsedCurTime.time() >= point1 and parsedCurTime.time() < point2:
-                cur.append('1-2')
-            if parsedCurTime.time() >= point2 and parsedCurTime.time() < point3:
-                cur.append('2-3')
-            if parsedCurTime.time() >= point3 and parsedCurTime.time() < point4:
-                cur.append('3-4')
-            if parsedCurTime.time() >= point4 and parsedCurTime.time() < point5:
-                cur.append('4-5')
-            if parsedCurTime.time() >= point5 and parsedCurTime.time() < point6:
-                cur.append('5-6')
-            if parsedCurTime.time() >= point6 and parsedCurTime.time() < point7:
-                cur.append('6-7')
-            if parsedCurTime.time() >= point7 and parsedCurTime.time() < point8:
-                cur.append('7-8')
-            if parsedCurTime.time() >= point8 and parsedCurTime.time() <= point9:
-                cur.append('8-9')
+            val = '0'
+            if parsedCurTime.time() == point2 and pos == 1:
+                pos = 2
+            if parsedCurTime.time() == point3 and pos == 2:
+                pos = 3
+            if parsedCurTime.time() == point4 and pos == 3:
+                pos = 4
+            if parsedCurTime.time() == point5 and pos == 4:
+                pos = 5
+            if parsedCurTime.time() == point6 and pos == 5:
+                pos = 6
+            if parsedCurTime.time() == point7 and pos == 6:
+                pos = 7
+            if parsedCurTime.time() == point8 and pos == 7:
+                pos = 8
+            if parsedCurTime.time() == point9 and pos == 8:
+                pos = 9
+                break
+            cur.append(str(pos) + '-' + str(pos+1))
             rows.append(cur)
         line = line+1
         if line % 4 == 0:
@@ -198,9 +205,10 @@ def perform(location, subject_name, start_time):
         write.writerow(fields)
         write.writerows(rows)
 
-    plot('HR', minhr, maxhr, subject_name, start_time)
-    plot('EDA', mineda, maxeda, subject_name, start_time)
-    plot('TEMP', mintemp, maxtemp, subject_name, start_time)
+    if UPDATE_GRAPHS:
+        plot('HR', minhr, maxhr, subject_name, start_time)
+        plot('EDA', mineda, maxeda, subject_name, start_time)
+        plot('TEMP', mintemp, maxtemp, subject_name, start_time)
 
 
 def plotEEG(axisA, axisB, subject_name, start_time):
@@ -342,28 +350,34 @@ def performEEG(location, subject_name, start_time):
     point7 = (start_time + datetime.timedelta(seconds=duration_rest2)).time()
     point8 = (start_time + datetime.timedelta(seconds=duration_control2)).time()
     point9 = (start_time + datetime.timedelta(seconds=duration_complete)).time()
+    pos = 0
     while line < len(columns["TIME"]):
         cur = []
         curTime = datetime.datetime.strptime(columns['TIME'][line], '%H:%M:%S')
-        if curTime.time() >= point1 and curTime.time() <= point9:
+        if (curTime.time() >= point1 or pos > 0) and pos < 9:
+            if pos == 0:
+                pos = 1
             for key in columns.keys():
                 cur.append(columns[key][line])
-            if curTime.time() >= point1 and curTime.time() < point2:
-                cur.append('1-2')
-            if curTime.time() >= point2 and curTime.time() < point3:
-                cur.append('2-3')
-            if curTime.time() >= point3 and curTime.time() < point4:
-                cur.append('3-4')
-            if curTime.time() >= point4 and curTime.time() < point5:
-                cur.append('4-5')
-            if curTime.time() >= point5 and curTime.time() < point6:
-                cur.append('5-6')
-            if curTime.time() >= point6 and curTime.time() < point7:
-                cur.append('6-7')
-            if curTime.time() >= point7 and curTime.time() < point8:
-                cur.append('7-8')
-            if curTime.time() >= point8 and curTime.time() <= point9:
-                cur.append('8-9')
+            val = '0'
+            if curTime.time() == point2 and pos == 1:
+                pos = 2
+            if curTime.time() == point3 and pos == 2:
+                pos = 3
+            if curTime.time() == point4 and pos == 3:
+                pos = 4
+            if curTime.time() == point5 and pos == 4:
+                pos = 5
+            if curTime.time() == point6 and pos == 5:
+                pos = 6
+            if curTime.time() == point7 and pos == 6:
+                pos = 7
+            if curTime.time() == point8 and pos == 7:
+                pos = 8
+            if curTime.time() == point9 and pos == 8:
+                pos = 9
+                break
+            cur.append(str(pos) + '-' + str(pos+1))
             rows.append(cur)
         line = line+1
 
@@ -374,11 +388,11 @@ def performEEG(location, subject_name, start_time):
         write.writerow(cur_keys)
         write.writerows(rows)
     
-    for band in ["AF3", "F7", "F3", "FC5", "T7", "P7", "O1", "O2", "P8", "T8", "FC6", "F4", "F8", "AF4"]:
-        plotEEG("POW." + band + ".Alpha", "POW." + band + ".BetaL", subject_name, start_time)
-        plotEEG("POW." + band + ".Alpha", "POW." + band + ".BetaH", subject_name, start_time)
-        plotEEG("POW." + band + ".Theta", "POW." + band + ".BetaL", subject_name, start_time)
-        plotEEG("POW." + band + ".Theta", "POW." + band + ".BetaH", subject_name, start_time)
+    if UPDATE_GRAPHS:
+        for band in ["AF3", "F7", "F3", "FC5", "T7", "P7", "O1", "O2", "P8", "T8", "FC6", "F4", "F8", "AF4"]:
+            plotEEG("POW." + band + ".Alpha", "POW." + band + ".BetaL", subject_name, start_time)
+            plotEEG("POW." + band + ".Alpha", "POW." + band + ".BetaH", subject_name, start_time)
+            plotEEG("POW." + band + ".Theta", "POW." + band + ".Alpha", subject_name, start_time)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
