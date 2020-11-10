@@ -4,3 +4,5 @@ websocket-client
 plotly
 pandas
 psutil
+seaborn
+matplotlib
