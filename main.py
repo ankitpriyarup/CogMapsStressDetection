@@ -78,10 +78,10 @@ def process(subject_name, band):
     X = df.drop(['STATE'], axis='columns')
     Y = df['STATE']
 
-    numerical_feature_columns = list(df._get_numeric_data().columns)
-    target = 'STATE'
 
     #### Feature Selection
+    # numerical_feature_columns = list(df._get_numeric_data().columns)
+    # target = 'STATE'
     # k = 42 # number of variables for heatmap
     # cols = df[numerical_feature_columns].corr().nlargest(k, target)[target].index
     # cm = df[cols].corr()
@@ -149,6 +149,7 @@ if __name__ == "__main__":
             print("Subject: " + subject)
             process(subject, ["AF3", "F7", "F3", "FC5", "T7", "P7", "O1", "O2", "P8", "T8", "FC6", "F4", "F8", "AF4"])
             # process(subject, ['AF3', 'F3', 'F4', 'F7', 'F8'])
+            break
 
     selectedFeatures = pd.DataFrame(list(sorted(features_val.items(), key=lambda x:x[1], reverse=True)))
     selectedFeatures.to_csv('observations/chi2test.csv')
