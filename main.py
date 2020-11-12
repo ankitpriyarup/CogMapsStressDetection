@@ -11,6 +11,7 @@ from sklearn.svm import SVC, SVR
 from sklearn.linear_model import (LinearRegression, Ridge, Lasso)
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.naive_bayes import GaussianNB 
 from sklearn.model_selection import KFold, cross_val_score, train_test_split
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.metrics import f1_score,confusion_matrix
@@ -111,13 +112,21 @@ def process(subject_name, band):
 
     #### 10-Cross Fold
     cv = KFold(n_splits=10, random_state=1, shuffle=True)
-    print('Running KNN')
+    print('Running KNN...')
     scores_KNN = cross_val_score(KNeighborsClassifier(n_neighbors=1), X, Y, scoring='accuracy', cv=cv, n_jobs=-1)
     print('Accuracy (KNN): %.6f (%.6f)' % (mean(scores_KNN), std(scores_KNN)))
 
-    # print('Running Gaussian SVM')
-    # scores_gaussianSVM = cross_val_score(SVC(kernel='rbf', gamma='auto', C=2.5), X, Y, scoring='accuracy', cv=cv, n_jobs=-1)
-    # print('Accuracy (Gaussian SVM): %.6f (%.6f)' % (mean(scores_gaussianSVM), std(scores_gaussianSVM)))
+    print('Running Gaussian Naive Bayes...')
+    scores_GaussianNB = cross_val_score(GaussianNB(), X, Y, scoring='accuracy', cv=cv, n_jobs=-1)
+    print('Accuracy (KNN): %.6f (%.6f)' % (mean(scores_GaussianNB), std(scores_GaussianNB)))
+
+    print('Running Random Forest...')
+    scores_RandomForest = cross_val_score(RandomForestClassifier(), X, Y, scoring='accuracy', cv=cv, n_jobs=-1)
+    print('Accuracy (KNN): %.6f (%.6f)' % (mean(scores_RandomForest), std(scores_RandomForest)))
+
+    print('Running Gaussian SVM...')
+    scores_gaussianSVM = cross_val_score(SVC(kernel='rbf', gamma='auto', C=2.5), X, Y, scoring='accuracy', cv=cv, n_jobs=-1)
+    print('Accuracy (Gaussian SVM): %.6f (%.6f)' % (mean(scores_gaussianSVM), std(scores_gaussianSVM)))
 
 
 if __name__ == "__main__":
