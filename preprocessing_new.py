@@ -5,9 +5,7 @@ from scipy.signal import butter, lfilter, freqz
 
 BAND = [0.5, 4, 7, 12, 30]      # Delta, Theta, Alpha, and Beta
 SAMPLING_FREQUENCY = 128
-LOW_BAND_PASS_RANGE = 0.5
-HIGH_BAND_PASS_RANGE = 30
-FEATURE_COMBINE_ORDER = SAMPLING_FREQUENCY * 1     # 1 SECOND
+FEATURE_COMBINE_ORDER = SAMPLING_FREQUENCY // 4     # 0.25 SECOND
 DURATIONS = [3*60 + 2, 8*60 + 32, 17*60 + 6, 18*60 + 5, 30*60 + 7, 31*60 + 37, 40*60 + 9, 45*60 + 40]
 CHANNELS = ["AF3", "F7", "F3", "FC5", "T7", "P7", "O1", "O2", "P8", "T8", "FC6", "F4", "F8", "AF4"]
 
@@ -54,11 +52,13 @@ def calculate_eeg_features(signal):
     alpha = bandpower(signal, SAMPLING_FREQUENCY, [8, 12], FEATURE_COMBINE_ORDER/SAMPLING_FREQUENCY)
     beta = bandpower(signal, SAMPLING_FREQUENCY, [12, 30], FEATURE_COMBINE_ORDER/SAMPLING_FREQUENCY)
     total = bandpower(signal, SAMPLING_FREQUENCY, [4, 100], FEATURE_COMBINE_ORDER/SAMPLING_FREQUENCY)
-    spectral_entropy = pyeeg.spectral_entropy(signal, BAND, SAMPLING_FREQUENCY, pyeeg.bin_power(signal, BAND, SAMPLING_FREQUENCY)[1])
+    if theta == 0 or alpha == 0 or beta == 0:
+        print(signal)
+    # spectral_entropy = pyeeg.spectral_entropy(signal, BAND, SAMPLING_FREQUENCY, pyeeg.bin_power(signal, BAND, SAMPLING_FREQUENCY)[1])
 
     return { 'MINIMUM':minimum, 'MAXIMUM':maximum, 'MEAN':mean, 'STANDARD_DEVIATION':standard_deviation, 'MOBILITY':hjorth[0], 'COMPLEXITY':hjorth[1],
              'POW_ALPHA_BY_BETA':abs(alpha)/abs(beta), 'POW_THETA_BY_ALPHA':abs(theta)/abs(alpha), 'POW_THETA_RELATIVE':abs(theta)/abs(total),
-             'POW_ALPHA_RELATIVE':abs(alpha)/abs(total), 'POW_BETA_RELATIVE':abs(beta)/abs(total), 'SPECTRAL_ENTROPY':spectral_entropy }
+             'POW_ALPHA_RELATIVE':abs(alpha)/abs(total), 'POW_BETA_RELATIVE':abs(beta)/abs(total), 'SPECTRAL_ENTROPY':0 }
 
 
 def calculate_ecg_features(eda, hr, temp):
@@ -80,25 +80,25 @@ def performPreprocessing(location, subject_name, start_time):
     # HR starts at 10 sec delay, so offset others accordingly
     eda, hr, temp = [], [], []
     for val in data_eda.values.tolist()[41:]:
-        for i in range(0, 32):
+        for i in range(0, SAMPLING_FREQUENCY//4):
             eda.append(val)
     for val in data_hr.values.tolist()[1:]:
-        for i in range(0, 128):
+        for i in range(0, SAMPLING_FREQUENCY):
             hr.append(val)
     for val in data_temp.values.tolist()[41:]:
-        for i in range(0, 32):
+        for i in range(0, SAMPLING_FREQUENCY//4):
             temp.append(val)
     ecg_cur_time = curTime = datetime.datetime.strptime(str(time.strftime('%H:%M:%S', time.localtime(float(data_hr.columns[0])))), '%H:%M:%S')
     offset = 0
     for i in range(0, len(eda)):
-        if (i%128 == 0 and i > 0):
+        if (i%SAMPLING_FREQUENCY == 0 and i > 0):
             ecg_cur_time = ecg_cur_time + datetime.timedelta(seconds=1)
         if ecg_cur_time.time() >= points[0]:
             offset = i
             break
 
     res = {}
-    res['PHASE'], res['TIME'], rows, cum_eeg_signal, cum_ecg_signal, pos, counter = [], [], [], {}, {}, 0, 0
+    res['PHASE'], res['TIME'], rows, cum_eeg_signal, pos, counter = [], [], [], {}, 0, 0
     for i in range(0, len(data_eeg)):
         curTime = datetime.datetime.strptime(str(time.strftime('%H:%M:%S', time.localtime(float(data_eeg["Timestamp"][i])))), '%H:%M:%S')
         if (curTime.time() >= points[0] or pos > 0) and pos < 9:
@@ -122,7 +122,7 @@ def performPreprocessing(location, subject_name, start_time):
                         if channel + '_' + key not in res:
                             res[channel + '_' + key] = []
                         res[channel + '_' + key].append(value)
-                cum_eeg_signal, cum_ecg_signal = {}, {}
+                cum_eeg_signal = {}
 
             for channel in CHANNELS:
                 if channel not in cum_eeg_signal:
@@ -153,6 +153,8 @@ if __name__ == "__main__":
         os.mkdir("results")
 
     for subject in os.listdir('data'):
+        if "13" not in subject:
+            continue
         infile = open('data/' + subject + '/Log.txt', 'r')
         start_time = datetime.datetime.strptime(infile.readline().replace('\n', ''), '%H:%M:%S')
         print('Performing on ' + subject + ' start_time=' + str(start_time.time()))

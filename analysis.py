@@ -54,9 +54,9 @@ def process(subject_name):
     df['STATE'] = df.apply(lambda row: row.PHASE == '3 -> 4' or row.PHASE == '5 -> 6' or row.PHASE == '7 -> 8', axis=1)
     del df['PHASE']
 
-    for col in df.columns:
-        if col not in CHOSEN_FEATURES and col != 'STATE':
-            del df[col]
+    # for col in df.columns:
+    #     if col not in CHOSEN_FEATURES and col != 'STATE':
+    #         del df[col]
     X = df.drop(['STATE'], axis='columns')
     Y = df['STATE']
 
