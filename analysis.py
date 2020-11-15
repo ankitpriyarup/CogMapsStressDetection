@@ -24,11 +24,23 @@ from numpy import mean, std
 pio.orca.config.executable = 'C:/Users/ankitpriyarup/AppData/Local/Programs/orca/orca.exe'
 pio.orca.config.save()
 CHANNELS = ["AF3", "F7", "F3", "FC5", "T7", "P7", "O1", "O2", "P8", "T8", "FC6", "F4", "F8", "AF4"]
-CHOSEN_FEATURES = [ "AF3_STANDARD_DEVIATION", "F7_STANDARD_DEVIATION", "AF3_POW_THETA_BY_ALPHA", "F7_POW_THETA_BY_ALPHA", "F3_POW_ALPHA_BY_BETA",
-                    "AF3_POW_ALPHA_BY_BETA", "F3_POW_THETA_BY_ALPHA", "F7_POW_ALPHA_BY_BETA", "HR", "F3_STANDARD_DEVIATION", "F3_POW_THETA_RELATIVE",
-                    "AF3_POW_ALPHA_RELATIVE", "AF3_POW_THETA_RELATIVE", "F7_POW_THETA_RELATIVE", "F7_POW_ALPHA_RELATIVE", "F3_POW_ALPHA_RELATIVE",
-                    "EDA", "F3_POW_BETA_RELATIVE" ]
+CHOSEN_FEATURES = [ "EDA", "HR", "TEMP" ]
 
+DISCARDED_FEATURES = [ "AF3_MINIMUM", "AF3_MAXIMUM", "AF3_MEAN", "AF3_STANDARD_DEVIATION",
+                       "F7_MINIMUM", "F7_MAXIMUM", "F7_MEAN", "F7_STANDARD_DEVIATION",
+                       "F3_MINIMUM", "F3_MAXIMUM", "F3_MEAN", "F3_STANDARD_DEVIATION",
+                       "FC5_MINIMUM", "FC5_MAXIMUM", "FC5_MEAN", "FC5_STANDARD_DEVIATION",
+                       "T7_MINIMUM", "T7_MAXIMUM", "T7_MEAN", "T7_STANDARD_DEVIATION",
+                       "P7_MINIMUM", "P7_MAXIMUM", "P7_MEAN", "P7_STANDARD_DEVIATION",
+                       "O1_MINIMUM", "O1_MAXIMUM", "O1_MEAN", "O1_STANDARD_DEVIATION",
+                       "O2_MINIMUM", "O2_MAXIMUM", "O2_MEAN", "O2_STANDARD_DEVIATION",
+                       "P8_MINIMUM", "P8_MAXIMUM", "P8_MEAN", "P8_STANDARD_DEVIATION",
+                       "T8_MINIMUM", "T8_MAXIMUM", "T8_MEAN", "T8_STANDARD_DEVIATION",
+                       "FC6_MINIMUM", "FC6_MAXIMUM", "FC6_MEAN", "FC6_STANDARD_DEVIATION",
+                       "F4_MINIMUM", "F4_MAXIMUM", "F4_MEAN", "F4_STANDARD_DEVIATION",
+                       "F8_MINIMUM", "F8_MAXIMUM", "F8_MEAN", "F8_STANDARD_DEVIATION",
+                       "AF4_MINIMUM", "AF4_MAXIMUM", "AF4_MEAN", "AF4_STANDARD_DEVIATION",
+                       "TIME", "EDA", "HR", "TEMP" ]
 
 def get_score(model, X_train, X_test, Y_train, Y_test):
     model.fit(X_train, Y_train)
@@ -53,10 +65,12 @@ def process(subject_name):
     df = pd.read_csv('data_processed/' + subject_name)
     df['STATE'] = df.apply(lambda row: row.PHASE == '3 -> 4' or row.PHASE == '5 -> 6' or row.PHASE == '7 -> 8', axis=1)
     del df['PHASE']
-
-    # for col in df.columns:
-    #     if col not in CHOSEN_FEATURES and col != 'STATE':
-    #         del df[col]
+    
+    for col in df.columns:
+        # if col in DISCARDED_FEATURES:
+        #     del df[col]
+        if col not in CHOSEN_FEATURES and col != 'STATE':
+            del df[col]
     X = df.drop(['STATE'], axis='columns')
     Y = df['STATE']
 

@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import os, sys, time, datetime, csv, pyeeg
+import os, sys, time, datetime, csv, pyeeg, math
 from scipy.signal import butter, lfilter, freqz
 
 BAND = [0.5, 4, 7, 12, 30]      # Delta, Theta, Alpha, and Beta
@@ -42,24 +42,31 @@ def bandpower(data, sf, band, window_sec=None, relative=False):
     return bp
 
 
-def calculate_eeg_features(signal):
+def calculate_eeg_features(theta, alpha, betaL, betaH, gamma, signal):
+    if theta == 0 or alpha == 0 or betaL == 0 or betaH == 0 or gamma == 0:
+        return { 'MINIMUM':'nan', 'MAXIMUM':'nan', 'MEAN':'nan', 'STANDARD_DEVIATION':'nan', 'MOBILITY':'nan', 'COMPLEXITY':'nan',
+             'POW_ALPHA_BY_BETA_L':'nan', 'POW_ALPHA_BY_BETA_H':'nan', 'POW_THETA_BY_ALPHA':'nan',
+             'POW_THETA_RELATIVE':'nan', 'POW_ALPHA_RELATIVE':'nan', 'POW_BETA_L_RELATIVE':'nan',
+             'POW_BETA_H_RELATIVE':'nan', 'SPECTRAL_ENTROPY':'nan' }
+
     minimum = np.amin(signal)
     maximum = np.amax(signal)
     mean = np.mean(signal)
     standard_deviation = np.std(signal)
     hjorth = pyeeg.hjorth(signal, D=None)
-    theta = bandpower(signal, SAMPLING_FREQUENCY, [4, 8], FEATURE_COMBINE_ORDER/SAMPLING_FREQUENCY)
-    alpha = bandpower(signal, SAMPLING_FREQUENCY, [8, 12], FEATURE_COMBINE_ORDER/SAMPLING_FREQUENCY)
-    beta = bandpower(signal, SAMPLING_FREQUENCY, [12, 30], FEATURE_COMBINE_ORDER/SAMPLING_FREQUENCY)
-    total = bandpower(signal, SAMPLING_FREQUENCY, [4, 100], FEATURE_COMBINE_ORDER/SAMPLING_FREQUENCY)
-    if theta == 0 or alpha == 0 or beta == 0:
-        print(signal)
-    # spectral_entropy = pyeeg.spectral_entropy(signal, BAND, SAMPLING_FREQUENCY, pyeeg.bin_power(signal, BAND, SAMPLING_FREQUENCY)[1])
+    total = theta + alpha + betaL + betaH + gamma
+    relative_theta = abs(theta)/abs(total)
+    relative_alpha = abs(alpha)/abs(total)
+    relative_beta_l = abs(betaL)/abs(total)
+    relative_beta_h = abs(betaH)/abs(total)
+    relative_gamma = abs(gamma)/abs(total)
+    bin_power = [relative_theta, relative_alpha, relative_beta_l, relative_beta_h, relative_gamma]
+    spectral_entropy = pyeeg.spectral_entropy(signal, BAND, SAMPLING_FREQUENCY, bin_power)
 
     return { 'MINIMUM':minimum, 'MAXIMUM':maximum, 'MEAN':mean, 'STANDARD_DEVIATION':standard_deviation, 'MOBILITY':hjorth[0], 'COMPLEXITY':hjorth[1],
-             'POW_ALPHA_BY_BETA':abs(alpha)/abs(beta), 'POW_THETA_BY_ALPHA':abs(theta)/abs(alpha), 'POW_THETA_RELATIVE':abs(theta)/abs(total),
-             'POW_ALPHA_RELATIVE':abs(alpha)/abs(total), 'POW_BETA_RELATIVE':abs(beta)/abs(total), 'SPECTRAL_ENTROPY':0 }
-
+             'POW_ALPHA_BY_BETA_L':abs(alpha)/abs(betaL), 'POW_ALPHA_BY_BETA_H':abs(alpha)/abs(betaH), 'POW_THETA_BY_ALPHA':abs(theta)/abs(alpha),
+             'POW_THETA_RELATIVE':abs(theta)/abs(total), 'POW_ALPHA_RELATIVE':abs(alpha)/abs(total), 'POW_BETA_L_RELATIVE':abs(betaL)/abs(total),
+             'POW_BETA_H_RELATIVE':abs(betaH)/abs(total), 'SPECTRAL_ENTROPY':spectral_entropy }
 
 def calculate_ecg_features(eda, hr, temp):
     mean_eda = np.mean(eda)
@@ -98,6 +105,7 @@ def performPreprocessing(location, subject_name, start_time):
             break
 
     res = {}
+    prevPos = offset
     res['PHASE'], res['TIME'], rows, cum_eeg_signal, pos, counter = [], [], [], {}, 0, 0
     for i in range(0, len(data_eeg)):
         curTime = datetime.datetime.strptime(str(time.strftime('%H:%M:%S', time.localtime(float(data_eeg["Timestamp"][i])))), '%H:%M:%S')
@@ -105,29 +113,33 @@ def performPreprocessing(location, subject_name, start_time):
             if pos == 0 or curTime.time() == points[pos]:
                 pos = pos+1
 
-            if counter%FEATURE_COMBINE_ORDER == 0 and counter > 0:
+            for channel in CHANNELS:
+                if channel not in cum_eeg_signal:
+                    cum_eeg_signal[channel] = []
+                cum_eeg_signal[channel].append(data_eeg['EEG.' + channel][i])
+
+            if not math.isnan(float(data_eeg["POW.AF3.Theta"][i])):
                 res['TIME'].append(data_eeg["Timestamp"][i])
                 res['PHASE'].append(str(pos) + ' -> ' + str(pos+1))
 
                 # ECG
-                l, r = offset+counter-FEATURE_COMBINE_ORDER, offset+counter
-                for key, value in calculate_ecg_features(eda[l:r], hr[l:r], temp[l:r]).items():
+                for key, value in calculate_ecg_features(eda[prevPos:offset+counter], hr[prevPos:offset+counter], temp[prevPos:offset+counter]).items():
                     if key not in res:
                         res[key] = []
                     res[key].append(value)
+                prevPos = offset+counter
 
                 # EEG
                 for channel in CHANNELS:
-                    for key, value in calculate_eeg_features([float(i) for i in np.array(cum_eeg_signal[channel])]).items():
+                    signal = [float(i) for i in np.array(cum_eeg_signal[channel])]
+                    for key, value in calculate_eeg_features(float(data_eeg["POW." + channel + ".Theta"][i]), float(data_eeg["POW." + channel + ".Alpha"][i]),
+                                                             float(data_eeg["POW." + channel + ".BetaL"][i]), float(data_eeg["POW." + channel + ".BetaH"][i]),
+                                                             float(data_eeg["POW." + channel + ".Gamma"][i]), signal).items():
                         if channel + '_' + key not in res:
                             res[channel + '_' + key] = []
                         res[channel + '_' + key].append(value)
                 cum_eeg_signal = {}
 
-            for channel in CHANNELS:
-                if channel not in cum_eeg_signal:
-                    cum_eeg_signal[channel] = []
-                cum_eeg_signal[channel].append(data_eeg['EEG.' + channel][i])
             counter = counter+1
 
     labels, rows = [], []
@@ -153,8 +165,6 @@ if __name__ == "__main__":
         os.mkdir("results")
 
     for subject in os.listdir('data'):
-        if "13" not in subject:
-            continue
         infile = open('data/' + subject + '/Log.txt', 'r')
         start_time = datetime.datetime.strptime(infile.readline().replace('\n', ''), '%H:%M:%S')
         print('Performing on ' + subject + ' start_time=' + str(start_time.time()))
