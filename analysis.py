@@ -1,4 +1,4 @@
-import csv, os, statistics, warnings, sys
+import csv, os, statistics, warnings, sys, time
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,11 +7,13 @@ import plotly.io as pio
 import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC, SVR
-from sklearn.linear_model import (LinearRegression, Ridge, Lasso)
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.naive_bayes import GaussianNB 
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn import tree
+from sklearn.svm import SVC, SVR
 from sklearn.model_selection import KFold, cross_val_score, train_test_split
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.metrics import f1_score,confusion_matrix
@@ -67,10 +69,10 @@ def process(subject_name):
     del df['PHASE']
     
     for col in df.columns:
-        # if col in DISCARDED_FEATURES:
-        #     del df[col]
-        if col not in CHOSEN_FEATURES and col != 'STATE':
+        if col in DISCARDED_FEATURES:
             del df[col]
+        # if col not in CHOSEN_FEATURES and col != 'STATE':
+        #     del df[col]
     X = df.drop(['STATE'], axis='columns')
     Y = df['STATE']
 
@@ -106,26 +108,23 @@ def process(subject_name):
 
     #### 10-Cross Fold
     cv = KFold(n_splits=10, random_state=1, shuffle=True)
-    print('Running KNN...')
-    scores_KNN = cross_val_score(KNeighborsClassifier(n_neighbors=1), X, Y, scoring='accuracy', cv=cv, n_jobs=-1)
-    print('Accuracy (KNN): %.6f (%.6f)' % (mean(scores_KNN), std(scores_KNN)))
+    models = [LinearDiscriminantAnalysis(), GradientBoostingClassifier(), tree.DecisionTreeClassifier(),
+              KNeighborsClassifier(n_neighbors=1), GaussianNB(), RandomForestClassifier(), SVC(kernel='rbf', gamma='auto')]
+    names = ['Linear Discriminant Analysis', 'Gradient Boosting', 'Decision Tree', 'KNN',
+             'Gaussian Naive Bayes', 'Random Forest', 'Gaussian SVM']
 
-    # print('Running Gaussian Naive Bayes...')
-    # scores_GaussianNB = cross_val_score(GaussianNB(), X, Y, scoring='accuracy', cv=cv, n_jobs=-1)
-    # print('Accuracy (KNN): %.6f (%.6f)' % (mean(scores_GaussianNB), std(scores_GaussianNB)))
-
-    # print('Running Random Forest...')
-    # scores_RandomForest = cross_val_score(RandomForestClassifier(), X, Y, scoring='accuracy', cv=cv, n_jobs=-1)
-    # print('Accuracy (KNN): %.6f (%.6f)' % (mean(scores_RandomForest), std(scores_RandomForest)))
-
-    # print('Running Gaussian SVM...')
-    # scores_gaussianSVM = cross_val_score(SVC(kernel='rbf', gamma='auto', C=2.5), X, Y, scoring='accuracy', cv=cv, n_jobs=-1)
-    # print('Accuracy (Gaussian SVM): %.6f (%.6f)' % (mean(scores_gaussianSVM), std(scores_gaussianSVM)))
+    for model, name in zip(models, names):
+        print('Running ' + name)
+        start = time.time()
+        for score in ["accuracy", "precision", "recall"]:
+            print(score + ': ' + str(cross_val_score(model, X, Y, scoring=score, cv=cv).mean()))
+        print('Time Taken: ' + str(time.time() - start))
+        print('----------------')
 
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == 'a':
-        # Pick maxCnt csv(s), merge them together and then train on merged
+        # Pick all csv(s), merge them together and then train on merged
         all_files = []
         for subject in os.listdir('data_processed'):
             print("Added " + subject)

@@ -4,8 +4,17 @@
 - python3 -m venv env
 - .\env\Scripts\activate.bat
 - pip3 install -r requirements.txt
+
+### Preprocessing
 - Download this folder and place it in root directory, https://mega.nz/folder/g19WUDaJ#cKIvrEnExUjjn72NuTGh3w
 - Install Ocra from https://github.com/plotly/orca
+- Use preprocessing.py file
+
+- Mental Arithmetic dataset: https://physionet.org/content/eegmat/1.0.0/
+- Inside data_mental_arithemetic folder EDF dataset is already converted to CSV using 
+
+### Analysis
+
 
 ## Results graph legends
 - 1: Start, Training Begins
