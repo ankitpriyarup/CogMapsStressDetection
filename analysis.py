@@ -11,6 +11,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn import tree
 from sklearn.svm import SVC, SVR
@@ -108,13 +109,11 @@ def process(subject_name):
 
     #### 10-Cross Fold
     cv = KFold(n_splits=10, random_state=1, shuffle=True)
-    models = [LinearDiscriminantAnalysis(), GradientBoostingClassifier(), tree.DecisionTreeClassifier(),
-              KNeighborsClassifier(n_neighbors=1), GaussianNB(), RandomForestClassifier(), SVC(kernel='rbf', gamma='auto')]
-    names = ['Linear Discriminant Analysis', 'Gradient Boosting', 'Decision Tree', 'KNN',
-             'Gaussian Naive Bayes', 'Random Forest', 'Gaussian SVM']
+    models = [MLPClassifier(), GaussianNB(), tree.DecisionTreeClassifier(), RandomForestClassifier(), GaussianNB(), LinearDiscriminantAnalysis(), GradientBoostingClassifier(), SVC(kernel='rbf', gamma='auto')]
+    names = ['MLP Classifier', 'Gaussian Naive Bayes', 'Decision Tree', 'Random Forest', 'Gaussian Naive Bayes', 'Linear Discriminant Analysis', 'Gradient Boosting', 'Gaussian SVM']
 
     for model, name in zip(models, names):
-        print('Running ' + name)
+        print('Running ' + name + '...')
         start = time.time()
         for score in ["accuracy", "precision", "recall"]:
             print(score + ': ' + str(cross_val_score(model, X, Y, scoring=score, cv=cv).mean()))
