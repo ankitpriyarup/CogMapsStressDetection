@@ -109,7 +109,7 @@ def process(subject_name):
 
     #### 10-Cross Fold
     cv = KFold(n_splits=10, random_state=1, shuffle=True)
-    models = [MLPClassifier(), GaussianNB(), tree.DecisionTreeClassifier(), RandomForestClassifier(), GaussianNB(), LinearDiscriminantAnalysis(), GradientBoostingClassifier(), SVC(kernel='rbf', gamma='auto')]
+    models = [MLPClassifier(random_state=1, max_iter=300), GaussianNB(), tree.DecisionTreeClassifier(), RandomForestClassifier(), GaussianNB(), LinearDiscriminantAnalysis(), GradientBoostingClassifier(), SVC(kernel='rbf', gamma='auto')]
     names = ['MLP Classifier', 'Gaussian Naive Bayes', 'Decision Tree', 'Random Forest', 'Gaussian Naive Bayes', 'Linear Discriminant Analysis', 'Gradient Boosting', 'Gaussian SVM']
 
     for model, name in zip(models, names):
