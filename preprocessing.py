@@ -1,8 +1,12 @@
 import pandas as pd
 import numpy as np
+import scipy.signal as sps
 import os, sys, time, datetime, csv, pyeeg, math
+from sklearn.decomposition import FastICA
 from scipy.signal import butter, lfilter, freqz
+import matplotlib.pyplot as plt
 
+np.seterr(divide='ignore', invalid='ignore')
 BAND = [0.5, 4, 7, 12, 30]      # Delta, Theta, Alpha, and Beta
 SAMPLING_FREQUENCY = 128
 FEATURE_COMBINE_ORDER = SAMPLING_FREQUENCY // 4     # 0.25 SECOND
@@ -43,16 +47,23 @@ def bandpower(data, sf, band, window_sec=None, relative=False):
 
 
 def calculate_eeg_features(theta, alpha, betaL, betaH, gamma, signal):
+    standard_deviation = np.std(signal)
     if theta == 0 or alpha == 0 or betaL == 0 or betaH == 0 or gamma == 0:
         return { 'MINIMUM':'nan', 'MAXIMUM':'nan', 'MEAN':'nan', 'STANDARD_DEVIATION':'nan', 'MOBILITY':'nan', 'COMPLEXITY':'nan',
              'POW_ALPHA_BY_BETA_L':'nan', 'POW_ALPHA_BY_BETA_H':'nan', 'POW_THETA_BY_ALPHA':'nan',
              'POW_THETA_RELATIVE':'nan', 'POW_ALPHA_RELATIVE':'nan', 'POW_BETA_L_RELATIVE':'nan',
              'POW_BETA_H_RELATIVE':'nan', 'SPECTRAL_ENTROPY':'nan' }
 
+    eeg = np.stack([signal]).T
+    ica = FastICA()
+    ica.fit(eeg)
+    components = ica.transform(eeg)
+    restored = ica.inverse_transform(components)
+    signal = restored.T[0]
+
     minimum = np.amin(signal)
     maximum = np.amax(signal)
     mean = np.mean(signal)
-    standard_deviation = np.std(signal)
     hjorth = pyeeg.hjorth(signal, D=None)
     total = theta + alpha + betaL + betaH + gamma
     relative_theta = abs(theta)/abs(total)
@@ -146,11 +157,15 @@ def performPreprocessing(location, subject_name, start_time):
     for i in range(0, len(res['TIME'])):
         cur = []
         fillLabel = len(labels) == 0
+        containNan = False
         for key, value in res.items():
             if fillLabel:
                 labels.append(key)
+            if key != "PHASE" and math.isnan(float(value[i])):
+                containNan = True
             cur.append(value[i])
-        rows.append(cur)
+        if containNan == False:
+            rows.append(cur)
     with open('data_processed/' + subject_name + '.csv', 'w', newline='') as file:
         write = csv.writer(file)
         write.writerow(labels)

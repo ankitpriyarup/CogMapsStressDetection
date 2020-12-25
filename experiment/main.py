@@ -5,7 +5,7 @@ import os
 import threading
 from pynput import keyboard
 from pynput.mouse import Button, Controller
-from lib.cortex import Cortex
+# from lib.cortex import Cortex
 from datetime import datetime
 
 mouse = Controller()
