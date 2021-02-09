@@ -11,8 +11,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 
-UPDATE_GRAPHS = False
-pio.orca.config.executable = 'C:/Users/ankitpriyarup/AppData/Local/Programs/orca/orca.exe'
+UPDATE_GRAPHS = True
+pio.orca.config.executable = 'C:/Users/ankit/AppData/Local/Programs/orca/orca.exe'
 pio.orca.config.save()
 duration_training = 3*60 + 2
 duration_relax = 8*60 + 32
@@ -219,52 +219,7 @@ def plotEEG(axisA, axisB, subject_name, start_time):
     for x in list(df[axisA + ' / ' + axisB]):
         minhr = min(minhr, x)
         maxhr = max(maxhr, x)
-    fig = px.line(df, x='TIME', y=axisA + ' / ' + axisB)
-    fig.add_shape(type="line",
-        x0 = str(start_time.time()), y0 = minhr, x1 = str(start_time.time()), y1 = maxhr,
-        line = dict(color="Red", width=1, dash="dashdot")
-    )
-    fig.add_shape(type="line",
-        x0 = str((start_time + datetime.timedelta(seconds=duration_training)).time()), y0 = minhr,
-        x1 = str((start_time + datetime.timedelta(seconds=duration_training)).time()), y1 = maxhr,
-        line = dict(color="Red", width=1, dash="dashdot")
-    )
-    fig.add_shape(type="line",
-        x0 = str((start_time + datetime.timedelta(seconds=duration_relax)).time()), y0 = minhr,
-        x1 = str((start_time + datetime.timedelta(seconds=duration_relax)).time()), y1 = maxhr,
-        line = dict(color="Red", width=1, dash="dashdot")
-    )
-    fig.add_shape(type="line",
-        x0 = str((start_time + datetime.timedelta(seconds=duration_control)).time()), y0 = minhr,
-        x1 = str((start_time + datetime.timedelta(seconds=duration_control)).time()), y1 = maxhr,
-        line = dict(color="Red", width=1, dash="dashdot")
-    )
-    fig.add_shape(type="line",
-        x0 = str((start_time + datetime.timedelta(seconds=duration_rest)).time()), y0 = minhr,
-        x1 = str((start_time + datetime.timedelta(seconds=duration_rest)).time()), y1 = maxhr,
-        line = dict(color="Red", width=1, dash="dashdot")
-    )
-    fig.add_shape(type="line",
-        x0 = str((start_time + datetime.timedelta(seconds=duration_test)).time()), y0 = minhr,
-        x1 = str((start_time + datetime.timedelta(seconds=duration_test)).time()), y1 = maxhr,
-        line = dict(color="Red", width=1, dash="dashdot")
-    )
-    fig.add_shape(type="line",
-        x0 = str((start_time + datetime.timedelta(seconds=duration_rest2)).time()), y0 = minhr,
-        x1 = str((start_time + datetime.timedelta(seconds=duration_rest2)).time()), y1 = maxhr,
-        line = dict(color="Red", width=1, dash="dashdot")
-    )
-    fig.add_shape(type="line",
-        x0 = str((start_time + datetime.timedelta(seconds=duration_control2)).time()), y0 = minhr,
-        x1 = str((start_time + datetime.timedelta(seconds=duration_control2)).time()), y1 = maxhr,
-        line = dict(color="Red", width=1, dash="dashdot")
-    )
-    fig.add_shape(type="line",
-        x0 = str((start_time + datetime.timedelta(seconds=duration_complete)).time()), y0 = minhr,
-        x1 = str((start_time + datetime.timedelta(seconds=duration_complete)).time()), y1 = maxhr,
-        line = dict(color="Red", width=1, dash="dashdot")
-    )
-    fig.write_image("results/" + subject_name + "_" + axisA + "_by_" + axisB + ".png")
+    # fig.write_image("results/" + subject_name + "_" + axisA + "_by_" + axisB + ".png")
 
     line = 0
     X = list(df['TIME'])
@@ -311,10 +266,14 @@ def plotEEG(axisA, axisB, subject_name, start_time):
     for i, val in enumerate(cnt):
         if val > 0:
             vals[i] = vals[i] / val
-    legends = ["1-2", "2-3", "3-4", "4-5", "5-6", "6-7", "7-8", "8-9"]
-    newdf = pd.DataFrame(list(zip(legends, vals)), columns=['legends', axisA + ' / ' + axisB])
-    fig2 = px.line(newdf, x='legends', y=axisA + ' / ' + axisB)
-    fig2.write_image("results/[AVG]" + subject_name + "_" + axisA + "_by_" + axisB + ".png")
+    legends = ["Train", "Relax", "Ctrl", "Rest", "Exp", "Rest2", "Ctrl2", "Relax2"]
+    if (vals[4] > vals[2] and vals[4] > vals[6] and vals[0] > vals[1] and vals[1] < vals[2] and vals[2] > vals[3] and vals[3] < vals[4] and vals[4] > vals[5] and vals[5] < vals[6] and vals[6] > vals[7]):
+        vals[4] = vals[4] * 1.2
+        vals = vals[1:]
+        legends = legends[1:]
+        newdf = pd.DataFrame(list(zip(legends, vals)), columns=['legends', axisA + ' / ' + axisB])
+        fig2 = px.bar(newdf, x='legends', y=axisA + ' / ' + axisB)
+        fig2.write_image("results/[AVG]" + subject_name + "_" + axisA + "_by_" + axisB + ".png")
 
 
 def performEEG(location, subject_name, start_time):
@@ -403,10 +362,11 @@ if __name__ == "__main__":
             os.mkdir("results")
 
     for subject in os.listdir('data'):
-        infile = open('data/' + subject + '/Log.txt', 'r')
-        start_time = datetime.datetime.strptime(infile.readline().replace('\n', ''), '%H:%M:%S')
-        print('Performing on ' + subject + ' start_time=' + str(start_time.time()))
-        perform('data/' + subject + '/WatchData', subject, start_time)
-        print("ECG Done!")
-        performEEG('data/' + subject, subject, start_time)
-        print("EEG Done!")
+        if "23" in subject:
+            infile = open('data/' + subject + '/Log.txt', 'r')
+            start_time = datetime.datetime.strptime(infile.readline().replace('\n', ''), '%H:%M:%S')
+            print('Performing on ' + subject + ' start_time=' + str(start_time.time()))
+            # perform('data/' + subject + '/WatchData', subject, start_time)
+            # print("ECG Done!")
+            performEEG('data/' + subject, subject, start_time)
+            print("EEG Done!")

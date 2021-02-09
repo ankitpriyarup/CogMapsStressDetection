@@ -29,27 +29,20 @@ from numpy import mean, std
 pio.orca.config.executable = 'C:/Users/ankitpriyarup/AppData/Local/Programs/orca/orca.exe'
 pio.orca.config.save()
 CHANNELS = ["AF3", "F7", "F3", "FC5", "T7", "P7", "O1", "O2", "P8", "T8", "FC6", "F4", "F8", "AF4"]
-CHOSEN_FEATURES = [ "O2_POW_THETA_RELATIVE", "FC6_POW_ALPHA_BY_BETA_H", "FC5_POW_BETA_H_RELATIVE", "FC6_POW_ALPHA_BY_BETA_L", "T8_SPECTRAL_ENTROPY", "T8_POW_BETA_H_RELATIVE",
-                    "T8_POW_ALPHA_RELATIVE", "T8_POW_THETA_RELATIVE", "T7_POW_THETA_RELATIVE", "T8_POW_THETA_BY_ALPHA", "T8_POW_ALPHA_BY_BETA_H", "T7_POW_BETA_H_RELATIVE", "T8_POW_ALPHA_BY_BETA_L",
-                    "T8_MOBILITY", "FC6_POW_THETA_BY_ALPHA", "P8_SPECTRAL_ENTROPY", "P7_POW_ALPHA_BY_BETA_H", "P8_POW_BETA_L_RELATIVE", "P8_POW_ALPHA_RELATIVE", "P8_POW_THETA_RELATIVE", "P8_POW_THETA_BY_ALPHA",
-                    "P7_POW_BETA_H_RELATIVE", "P8_POW_ALPHA_BY_BETA_H", "P8_POW_ALPHA_BY_BETA_L", "O2_SPECTRAL_ENTROPY", "O2_POW_BETA_H_RELATIVE", "O1_POW_ALPHA_BY_BETA_H", "O1_POW_ALPHA_RELATIVE",
-                    "O1_POW_BETA_L_RELATIVE", "O1_POW_BETA_H_RELATIVE", "P8_POW_BETA_H_RELATIVE", "FC5_POW_ALPHA_BY_BETA_H", "FC5_POW_THETA_RELATIVE", "FC6_POW_THETA_RELATIVE", "AF4_POW_BETA_L_RELATIVE",
-                    "AF4_POW_THETA_RELATIVE", "AF3_POW_ALPHA_BY_BETA_H", "AF4_POW_THETA_BY_ALPHA", "AF4_POW_ALPHA_BY_BETA_L", "AF3_POW_BETA_L_RELATIVE", "AF3_POW_BETA_H_RELATIVE", "F8_POW_BETA_H_RELATIVE",
-                    "F8_POW_ALPHA_RELATIVE", "F7_POW_ALPHA_BY_BETA_L", "F7_POW_ALPHA_BY_BETA_H", "F8_POW_ALPHA_BY_BETA_H", "FC5_POW_ALPHA_BY_BETA_L", "F4_SPECTRAL_ENTROPY", "F8_POW_ALPHA_BY_BETA_L",
-                    "F4_POW_BETA_H_RELATIVE", "FC6_POW_ALPHA_RELATIVE", "FC6_POW_BETA_L_RELATIVE", "F3_POW_BETA_H_RELATIVE", "F7_POW_BETA_H_RELATIVE", "FC6_POW_BETA_H_RELATIVE", "F3_POW_THETA_RELATIVE",
-                    "F3_POW_BETA_L_RELATIVE", "F3_POW_ALPHA_BY_BETA_H", "F4_POW_ALPHA_BY_BETA_L", "F4_POW_ALPHA_BY_BETA_H", "F4_POW_BETA_L_RELATIVE", "FC6_SPECTRAL_ENTROPY", "O2_POW_ALPHA_BY_BETA_H",
-
-                    "AF3_POW_THETA_RELATIVE", "FC5_SPECTRAL_ENTROPY", "FC5_POW_BETA_L_RELATIVE", "O2_POW_ALPHA_RELATIVE", "F7_POW_ALPHA_RELATIVE", "O2_POW_BETA_L_RELATIVE", "O1_POW_THETA_RELATIVE",
-                    "F8_POW_THETA_BY_ALPHA", "AF4_SPECTRAL_ENTROPY", "T7_POW_ALPHA_RELATIVE", "T7_POW_ALPHA_BY_BETA_H", "AF3_POW_ALPHA_BY_BETA_L", "T8_POW_BETA_L_RELATIVE", "F8_POW_BETA_L_RELATIVE",
-                    "F3_POW_THETA_BY_ALPHA", "F7_POW_THETA_RELATIVE", "O1_POW_ALPHA_BY_BETA_L", "F4_POW_ALPHA_RELATIVE", "T8_COMPLEXITY", "F7_POW_BETA_L_RELATIVE", "F4_POW_THETA_RELATIVE",
-                    "F4_POW_THETA_BY_ALPHA", "P7_POW_ALPHA_BY_BETA_L", "F8_POW_THETA_RELATIVE", "T7_POW_ALPHA_BY_BETA_L", "P7_POW_THETA_BY_ALPHA", "AF4_POW_ALPHA_BY_BETA_H", "O2_POW_ALPHA_BY_BETA_L",
-
-                    "AF4_POW_ALPHA_RELATIVE", "T7_POW_BETA_L_RELATIVE", "AF4_POW_BETA_H_RELATIVE", "P8_MOBILITY", "P7_POW_ALPHA_RELATIVE", "FC5_POW_ALPHA_RELATIVE", "O1_POW_THETA_BY_ALPHA",
-                    "O2_POW_THETA_BY_ALPHA", "AF3_POW_ALPHA_RELATIVE", "P7_POW_THETA_RELATIVE", "AF3_SPECTRAL_ENTROPY", "F3_POW_ALPHA_RELATIVE", "F3_SPECTRAL_ENTROPY", "F3_POW_ALPHA_BY_BETA_L",
-                    "T7_SPECTRAL_ENTROPY", "P8_COMPLEXITY", "P7_MOBILITY", "F7_POW_THETA_BY_ALPHA", "P7_POW_BETA_L_RELATIVE", "F7_SPECTRAL_ENTROPY", "F8_SPECTRAL_ENTROPY", "P7_SPECTRAL_ENTROPY",
-                    "T7_POW_THETA_BY_ALPHA", "AF3_POW_THETA_BY_ALPHA", "FC5_POW_THETA_BY_ALPHA", "AF4_COMPLEXITY", "P7_COMPLEXITY", "O2_MOBILITY", "AF4_MOBILITY", "O1_MOBILITY", "F4_COMPLEXITY",
-                    "T7_MOBILITY", "T7_COMPLEXITY", "FC6_MOBILITY", "F8_MOBILITY", "FC6_COMPLEXITY", "F4_MOBILITY", "F3_COMPLEXITY", "O2_COMPLEXITY", "FC5_MOBILITY", "O1_COMPLEXITY", "F7_MOBILITY",
-                    "FC5_COMPLEXITY", "F8_COMPLEXITY", "F3_MOBILITY", "F7_COMPLEXITY", "AF3_MOBILITY", "AF3_COMPLEXITY"
+CHOSEN_FEATURES = [ "AF3_MINIMUM", "AF3_MAXIMUM", "AF3_MEAN", "AF3_STANDARD_DEVIATION",
+                       "F7_MINIMUM", "F7_MAXIMUM", "F7_MEAN", "F7_STANDARD_DEVIATION",
+                       "F3_MINIMUM", "F3_MAXIMUM", "F3_MEAN", "F3_STANDARD_DEVIATION",
+                       "FC5_MINIMUM", "FC5_MAXIMUM", "FC5_MEAN", "FC5_STANDARD_DEVIATION",
+                       "T7_MINIMUM", "T7_MAXIMUM", "T7_MEAN", "T7_STANDARD_DEVIATION",
+                       "P7_MINIMUM", "P7_MAXIMUM", "P7_MEAN", "P7_STANDARD_DEVIATION",
+                       "O1_MINIMUM", "O1_MAXIMUM", "O1_MEAN", "O1_STANDARD_DEVIATION",
+                       "O2_MINIMUM", "O2_MAXIMUM", "O2_MEAN", "O2_STANDARD_DEVIATION",
+                       "P8_MINIMUM", "P8_MAXIMUM", "P8_MEAN", "P8_STANDARD_DEVIATION",
+                       "T8_MINIMUM", "T8_MAXIMUM", "T8_MEAN", "T8_STANDARD_DEVIATION",
+                       "FC6_MINIMUM", "FC6_MAXIMUM", "FC6_MEAN", "FC6_STANDARD_DEVIATION",
+                       "F4_MINIMUM", "F4_MAXIMUM", "F4_MEAN", "F4_STANDARD_DEVIATION",
+                       "F8_MINIMUM", "F8_MAXIMUM", "F8_MEAN", "F8_STANDARD_DEVIATION",
+                       "AF4_MINIMUM", "AF4_MAXIMUM", "AF4_MEAN", "AF4_STANDARD_DEVIATION"
 
  ]
 
@@ -88,20 +81,40 @@ def generate_accuracy_and_heatmap(model, x, y):
 
 
 features_val = {}
+from scipy.signal import savgol_filter
 def process(subject_name):
-    for i in [116]:
+    i = 56
+    for j in [3]:
     # for i in range(1, len(CHOSEN_FEATURES)+1):
+        print(j)
         print("Taking " + str(i) + " features...")
         df = pd.read_csv('data_processed/' + subject_name)
-        df['STATE'] = df.apply(lambda row: row.PHASE == '3 -> 4' or row.PHASE == '5 -> 6' or row.PHASE == '7 -> 8', axis=1)
+        df['STATE'] = df.apply(lambda row: 1 if row.PHASE == '3 -> 4' or row.PHASE == '7 -> 8' else (2 if row.PHASE == '5 -> 6' else 0), axis=1)
         del df['PHASE']
 
-        df = df.sort_values('STATE', ascending=False)
+        # df = df.sort_values('STATE', ascending=False)
         baselineCount = len(df[df.STATE == 0])
         stressCount = len(df[df.STATE == 1])
+        highStressCount = len(df[df.STATE == 2])
+
+        # minV = min([baselineCount, stressCount, highStressCount])
+        # for index, row in df.iterrows():
+        #     print(index)
+        #     if baselineCount > minV and row['STATE'] == 0:
+        #         df.drop(index, inplace=True)
+        #         baselineCount -= 1
+        #     if stressCount > minV and row['STATE'] == 1:
+        #         df.drop(index, inplace=True)
+        #         stressCount -= 1
+        #     if highStressCount > minV and row['STATE'] == 2:
+        #         df.drop(index, inplace=True)
+        #         highStressCount -= 1
+
+        # df['EDA'] = savgol_filter(df['EDA'], j, 2)
+        # df['TEMP'] = savgol_filter(df['TEMP'], j, 2)
 
         # Delete initial rows
-        df = df.iloc[(stressCount - baselineCount):]
+        # df = df.iloc[(stressCount - baselineCount):]
 
         # Uniformly delete rows from stress to balance it
         # toRemove = []
@@ -111,10 +124,11 @@ def process(subject_name):
         #         toRemove.append(i)
         # df = df.drop(df.index[toRemove])
 
-        baselineCount = len(df[df.STATE == 0])
-        stressCount = len(df[df.STATE == 1])
+        # baselineCount = len(df[df.STATE == 0])
+        # stressCount = len(df[df.STATE == 1])
         print("Baseline count: " + str(baselineCount))
         print("Stress count: " + str(stressCount))
+        print("High Stress count: " + str(highStressCount))
 
         for col in df.columns:
             # if col in DISCARDED_FEATURES:
@@ -175,12 +189,15 @@ def process(subject_name):
         #### 10-Cross Fold
         cv = KFold(n_splits=10, random_state=1, shuffle=True)
         models = [KNeighborsClassifier(n_neighbors=1), RandomForestClassifier(), GaussianNB(), SVC(kernel='rbf', gamma='auto')]
+        # models = [KNeighborsClassifier(n_neighbors=1)]
         names = ['KNN', "Random Forest", "Gaussian Naive Bayes", "Gaussian SVM"]
+        # names = ['KNN']
 
         for model, name in zip(models, names):
             print('Running ' + name + '...')
             start = time.time()
-            for score in ["accuracy", "f1"]:
+            # for score in ["accuracy"]:
+            for score in ["roc_auc_ovr", "accuracy"]:
                 print(score + ': ' + str(cross_val_score(model, X, Y, scoring=score, cv=cv).mean()))
             print('Time Taken: ' + str(time.time() - start))
             print('----------------')
