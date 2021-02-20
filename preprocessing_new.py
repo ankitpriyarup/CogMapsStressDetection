@@ -28,6 +28,7 @@ from sklearn.datasets import make_blobs
 from sklearn.metrics import auc, average_precision_score, confusion_matrix, roc_curve, precision_recall_curve
 from sklearn.model_selection import train_test_split, RandomizedSearchCV, StratifiedKFold
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import plot_confusion_matrix
 
 
 def draw_cv_roc_curve(classifier, cv, X, y, title='ROC Curve'):
@@ -104,6 +105,7 @@ def processValue(signal, applySavgol):
     median = np.median(sig)
     mode = np.mean(stats.mode(sig).mode)
     standard_deviation = np.std(sig)
+    # return [mean]
     return [maximum, minimum, mean, median, mode, standard_deviation]
     # return [maximum, minimum, mean, standard_deviation]
 
@@ -149,6 +151,7 @@ def performPreprocessing(location, subject_name, start_time):
     labels, rows, pos = [], [], 0
     labels.append('PHASE')
     for sig in ['EDA', 'HR', 'SKT', 'BVP']:
+        # for feature in ['MEAN']:
         # for feature in ['MAX', 'MIN', 'MEAN', 'SD']:
         for feature in ['MAX', 'MIN', 'MEAN', 'MEDIAN', 'MODE', 'SD']:
             labels.append(sig + '_' + feature)
@@ -200,9 +203,11 @@ def performAnalysis(subject_name):
         random.shuffle(FEATURE_PREFERENCE)
 
     chosen = 0
+    indV = 100
     # for chosen in range(0, len(FEATURE_PREFERENCE)):
-    for chosen_feature in (['BVP'], ['HR', 'EDA'], ['EDA', 'SKT', 'HR'],
-                           ['EDA', 'SKT', 'HR', 'BVP']):
+    # for chosen_feature in (['BVP'], ['HR', 'EDA'], ['EDA', 'SKT', 'HR'], ['EDA', 'SKT', 'HR', 'BVP']):
+    for chosen_feature in ([['EDA', 'SKT', 'HR']]):
+        indV = indV + 1
         if (OPTIMIZE_MODE == False):
             # print("Picking top " + str(chosen + 1) + " feature(s)")
             print(chosen_feature)
@@ -255,20 +260,17 @@ def performAnalysis(subject_name):
         models = [
             KNeighborsClassifier(n_neighbors=1),
             RandomForestClassifier(),
-            LogisticRegression(random_state=0),
-            SVC(kernel='rbf', gamma='auto')
         ]
-        names = [
-            "K-Nearest Neighbors", "Random Forest", "Logistic Regression",
-            "Gaussian SVM"
-        ]
+        names = ["KNN", "RF"]
+        X_train, X_test, Y_train, Y_test = train_test_split(X,
+                                                            Y,
+                                                            test_size=0.25)
         for model, name in zip(models, names):
             if (OPTIMIZE_MODE == False):
                 print('Running ' + name + '...')
             for score in ["accuracy", "roc_auc_ovr"]:
                 cur_score = cross_val_score(model, X, Y, scoring=score,
                                             cv=cv).mean()
-                draw_cv_roc_curve(model, cv, X, Y, title='Cross Validated ROC')
                 if (OPTIMIZE_MODE == False):
                     print(score + ': ' + str(cur_score))
                 else:
@@ -281,6 +283,15 @@ def performAnalysis(subject_name):
                     print(FEATURE_PREFERENCE[:(chosen + 1)])
                     print(features)
                     print('----------------')
+            model.fit(X_train, Y_train)
+            predicted_labels = model.predict(X_test)
+            disp = plot_confusion_matrix(model,
+                                         X_test,
+                                         Y_test,
+                                         cmap=plt.cm.Blues)
+            plt.savefig('results_new/confusion_' + str(indV) + '_' + name +
+                        '.png')
+
             if (OPTIMIZE_MODE == False):
                 print('----------------')
 
@@ -310,19 +321,19 @@ def performAnalysis(subject_name):
 
 
 if __name__ == "__main__":
-    shutil.rmtree('data_processed_new')
-    os.mkdir("data_processed_new")
+    # shutil.rmtree('data_processed_new')
+    # os.mkdir("data_processed_new")
 
-    print("Performing preprocessing")
-    for subject in os.listdir('data'):
-        if "Subject5" in subject:
-            continue
-        infile = open('data/' + subject + '/Log.txt', 'r')
-        start_time = datetime.datetime.strptime(
-            infile.readline().replace('\n', ''), '%H:%M:%S')
-        print('Performing on ' + subject + ' start_time=' +
-              str(start_time.time()))
-        performPreprocessing('data/' + subject, subject, start_time)
+    # print("Performing preprocessing")
+    # for subject in os.listdir('data'):
+    #     if "Subject5" in subject:
+    #         continue
+    #     infile = open('data/' + subject + '/Log.txt', 'r')
+    #     start_time = datetime.datetime.strptime(
+    #         infile.readline().replace('\n', ''), '%H:%M:%S')
+    #     print('Performing on ' + subject + ' start_time=' +
+    #           str(start_time.time()))
+    #     performPreprocessing('data/' + subject, subject, start_time)
 
     print("Performing analysis")
     all_files, already_combined = [], False
