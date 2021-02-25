@@ -105,8 +105,12 @@ def processValue(signal, applySavgol):
     median = np.median(sig)
     mode = np.mean(stats.mode(sig).mode)
     standard_deviation = np.std(sig)
+    first_derrivative = np.mean(np.diff(sig))
     # return [mean]
-    return [maximum, minimum, mean, median, mode, standard_deviation]
+    return [
+        maximum, minimum, mean, median, mode, standard_deviation,
+        first_derrivative
+    ]
     # return [maximum, minimum, mean, standard_deviation]
 
 
@@ -153,7 +157,7 @@ def performPreprocessing(location, subject_name, start_time):
     for sig in ['EDA', 'HR', 'SKT', 'BVP']:
         # for feature in ['MEAN']:
         # for feature in ['MAX', 'MIN', 'MEAN', 'SD']:
-        for feature in ['MAX', 'MIN', 'MEAN', 'MEDIAN', 'MODE', 'SD']:
+        for feature in ['MAX', 'MIN', 'MEAN', 'MEDIAN', 'MODE', 'SD', 'DIFF']:
             labels.append(sig + '_' + feature)
     cur_time = datetime.datetime.strptime(
         str(
@@ -191,6 +195,11 @@ FEATURE_PREFERENCE = ['EDA', 'HR', 'SKT', 'BVP']
 OPTIMIZE_MODE = False
 cur_best, best_len, hash_map = 0, 0, []
 
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.ensemble import GradientBoostingClassifier
+import seaborn as sns
+
 
 def performAnalysis(subject_name):
     global hash_map
@@ -203,10 +212,17 @@ def performAnalysis(subject_name):
         random.shuffle(FEATURE_PREFERENCE)
 
     chosen = 0
-    indV = 100
+    indV = 0
     # for chosen in range(0, len(FEATURE_PREFERENCE)):
     # for chosen_feature in (['BVP'], ['HR', 'EDA'], ['EDA', 'SKT', 'HR'], ['EDA', 'SKT', 'HR', 'BVP']):
-    for chosen_feature in ([['EDA', 'SKT', 'HR']]):
+
+    featurePool = [['EDA'], ['HR'], ['SKT'], ['BVP'], ['EDA', 'HR'],
+                   ['EDA', 'SKT'], ['EDA', 'BVP'], ['HR', 'SKT'],
+                   ['HR', 'BVP'], ['SKT', 'BVP'], ['EDA', 'HR', 'SKT'],
+                   ['EDA', 'HR', 'BVP'], ['EDA', 'SKT', 'BVP'],
+                   ['HR', 'SKT', 'BVP'], ['EDA', 'HR', 'SKT', 'BVP']]
+
+    for chosen_feature in (featurePool):
         indV = indV + 1
         if (OPTIMIZE_MODE == False):
             # print("Picking top " + str(chosen + 1) + " feature(s)")
@@ -229,6 +245,21 @@ def performAnalysis(subject_name):
             (2 if row.PHASE == '5 -> 6' else 0),
             axis=1)
         del df['PHASE']
+
+        print(df.corr(method='spearman'))
+        numerical_feature_columns = list(df._get_numeric_data().columns)
+        target = 'STATE'
+        k = 29  # number of variables for heatmap
+        cols = df[numerical_feature_columns].corr().nlargest(
+            k, target)[target].index
+
+        print(cols)
+
+        cm = df[cols].corr()
+        plt.figure(figsize=(48, 30))
+        heatmap = sns.heatmap(cm, annot=True, cmap='viridis')
+        heatmap.figure.savefig("heatmap.jpg")
+
         baselineCount = len(df[df.STATE == 0])
         stressCount = len(df[df.STATE == 1])
         highStressCount = len(df[df.STATE == 2])
@@ -258,10 +289,16 @@ def performAnalysis(subject_name):
         Y = df['STATE']  # NEVER COMMENT BITCH
         cv = KFold(n_splits=10, random_state=1, shuffle=True)
         models = [
+            GradientBoostingClassifier(n_estimators=100,
+                                       learning_rate=1.0,
+                                       max_depth=1,
+                                       random_state=0),
+            LinearDiscriminantAnalysis(),
+            AdaBoostClassifier(n_estimators=100, random_state=0),
             KNeighborsClassifier(n_neighbors=1),
             RandomForestClassifier(),
         ]
-        names = ["KNN", "RF"]
+        names = ["GB", "LDA", "ADA", "KNN", "RF"]
         X_train, X_test, Y_train, Y_test = train_test_split(X,
                                                             Y,
                                                             test_size=0.25)
